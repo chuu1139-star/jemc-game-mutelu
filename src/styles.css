@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Kanit", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #151126;
+  --color-ink-deep: #0c0917;
+  --color-purple: #332065;
+  --color-purple-mid: #21174a;
+  --color-purple-bright: #6d4eff;
+  --color-gold: #ffbd3a;
+  --color-gold-soft: #fde68a;
+  --color-neon: #45f2c5;
+  --color-neon-soft: #bffff0;
+  --color-fg: #f7f5ff;
+  --color-muted: #ede9fe;
+  --color-slate-mist: #aeb2c7;
+  --color-panel: #251c46;
+  --color-header: #151126;
+  --color-danger: #ff5d7c;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --animate-float: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-fg);
+    background: #151126;
+    overflow-x: hidden;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  *:focus-visible {
+    outline: 3px solid var(--color-neon);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .thai-pattern {
+    background-image:
+      radial-gradient(circle at 20% 18%, rgba(255, 189, 58, 0.16), transparent 26rem),
+      radial-gradient(circle at 85% 5%, rgba(69, 242, 197, 0.11), transparent 22rem),
+      linear-gradient(135deg, #151126 0%, #21174a 50%, #171327 100%);
+  }
+
+  .grid-pattern {
+    background-image:
+      linear-gradient(rgba(189, 175, 255, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(189, 175, 255, 0.12) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .thai-diamond {
+    background-image: linear-gradient(
+      45deg,
+      rgba(255, 189, 58, 0.13) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 189, 58, 0.13) 75%
+    );
+    background-size: 44px 44px;
+  }
+
+  .glass-panel {
+    background: rgba(37, 28, 70, 0.72);
+    border: 1px solid rgba(219, 211, 255, 0.16);
+    box-shadow: 0 22px 50px rgba(7, 4, 20, 0.28);
+    backdrop-filter: blur(14px);
+  }
+
+  .gold-line {
+    background: linear-gradient(90deg, transparent, #ffbd3a, transparent);
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 80;
+    border-radius: 0.75rem;
+    background: #ffbd3a;
+    color: #21164a;
+    padding: 0.6rem 1rem;
+    font-weight: 600;
+  }
+
+  .skip-link:focus {
+    top: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

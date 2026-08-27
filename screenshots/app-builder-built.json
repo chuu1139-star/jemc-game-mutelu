@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Mutelu ศึกพิกัดสายมู | JeMC",
+      "hasCanvas": true,
+      "bodyTextLen": 2961,
+      "bodyTextHash": "ab7d613d3c8b12a19dc9652a3200ba0844c8abe6a3fbb0a43fa60ca328907bec",
+      "bodyTextPrefix": "ข้ามไปยังเนื้อหา JeMC (เจมซี) Mutelu ศึกพิกัดสายมู เกี่ยวกับเกม ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Mutelu ศึกพิกัดสายมู | JeMC",
+      "hasCanvas": true,
+      "bodyTextLen": 2917,
+      "bodyTextHash": "7cfdd523b6a1d4f798f8591d3347602166d92380c9f3f3f59f06db7dbc0e8712",
+      "bodyTextPrefix": "ข้ามไปยังเนื้อหา JeMC (เจมซี) Mutelu ศึกพิกัดสายมู Mutelu : ศึกพ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}

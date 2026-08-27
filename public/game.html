@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="th">
+ <head>  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mutelu ศึกพิกัดสายมู — กระดานเกม</title>
+  <meta name="description" content="บอร์ดเกมคณิตศาสตร์เชิงผจญภัยบน Cartesian Grid จากทีม JeMC โรงเรียนศึกษานารี">
+  <meta name="theme-color" content="#0b132b">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root{--navy:#0b132b;--panel:rgba(28,37,65,.9);--gold:#ffc107;--cyan:#38bdf8;--pink:#f9a8d4;--lime:#a3e635;--orange:#fb923c;--text:#eef6ff;--muted:#b7c7e8}
+    html,body{height:100%;max-height:100%;margin:0;overflow:hidden;}
+    *{box-sizing:border-box} body{margin:0;background:var(--navy);color:var(--text);font-family:Kanit,sans-serif}
+    button,input,select{font:inherit} button:disabled{cursor:not-allowed;opacity:.42}
+    button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    .app-shell{width:100%;height:100%;max-height:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background-color:var(--navy);background-image:linear-gradient(rgba(93,142,214,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(93,142,214,.075) 1px,transparent 1px),radial-gradient(circle at 80% 0%,rgba(73,45,142,.3),transparent 34%);background-size:24px 24px,24px 24px,auto}
+    .glass{background:var(--panel);border:1px solid rgba(130,161,220,.25);box-shadow:0 14px 35px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
+    .gold-btn{background:linear-gradient(135deg,#ffc107,#ffb703);color:#172033;font-weight:800;box-shadow:0 8px 24px rgba(255,193,7,.22);transition:.16s}.gold-btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+    .outline-btn{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.05);color:#fff}.outline-btn:hover{background:rgba(255,255,255,.12)}
+    .start-view{min-height:100dvh;display:grid;place-items:center;padding:2rem;overflow:auto}.hero-card{max-width:720px;border-radius:30px;padding:clamp(2rem,5vw,4.5rem);text-align:center}
+    #setup-modal.setup-page{background:rgba(11,19,43,.55)}
+    .board-frame{border:2px solid rgba(255,193,7,.75);padding:8px;border-radius:18px;background:rgba(5,10,29,.74);box-shadow:0 0 0 4px rgba(255,193,7,.07),0 20px 35px rgba(0,0,0,.35)}
+    #board{display:grid;width:100%;aspect-ratio:1;touch-action:manipulation}.cell{position:relative;min-width:0;overflow:hidden;padding:0;border:0;border-right:1px solid rgba(137,174,242,.18);border-bottom:1px solid rgba(137,174,242,.18);background:rgba(41,56,100,.42);cursor:pointer}.cell:hover{background:rgba(255,193,7,.16)}.cell.axis{background:rgba(56,189,248,.09)}.cell.origin{background:rgba(255,193,7,.18)}
+    .coord{position:absolute;bottom:1px;left:2px;font-size:clamp(5px,.55vw,9px);color:rgba(210,226,255,.55);line-height:1}.temple{position:absolute;inset:2px;display:grid;place-items:center;border:1px solid rgba(255,193,7,.85);border-radius:4px;background:rgba(255,193,7,.16);color:#ffe69a;padding:1px;text-align:center;font-size:clamp(5px,.58vw,9px);font-weight:700;line-height:1.05}.origin-mark{position:absolute;inset:28%;border-radius:999px;background:var(--gold);box-shadow:0 0 13px rgba(255,193,7,.8)}
+    .trap{position:absolute;right:3px;top:2px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:13px solid;z-index:4}.piece-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;width:70%;transition:transform .22s ease-in-out}.piece{width:clamp(9px,1.2vw,17px);height:clamp(9px,1.2vw,17px);border-radius:50%;border:1.5px solid white;box-shadow:0 0 8px currentColor;animation:pawnIn .28s ease-out both}.piece-wrap.step-moving{transition:transform .22s ease-in-out}.deck.face-down{position:relative;overflow:hidden;background:repeating-linear-gradient(135deg,#172554 0 8px,#1e3a8a 8px 16px);border-color:rgba(255,193,7,.55)}.deck.face-down:before{content:'✦';position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,193,7,.42);font-size:2rem;pointer-events:none}@keyframes pawnIn{from{opacity:.2;transform:translate(-50%,-50%) scale(.65)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+    .deck,.hand-card{border:1px solid rgba(163,195,255,.3);border-radius:12px;background:linear-gradient(145deg,#293b6e,#16213e);padding:.8rem;text-align:left;transition:.16s}.deck{min-height:108px;box-shadow:4px 4px 0 rgba(255,193,7,.15)}.deck:hover:not(:disabled),.hand-card:hover:not(:disabled){transform:translateY(-2px);border-color:var(--gold)}.player-stat-card{display:flex;align-items:center;gap:.7rem;border:1px solid rgba(163,195,255,.22);border-radius:12px;background:rgba(9,18,48,.68);padding:.7rem;transition:.18s}.player-stat-card.current-player{border-color:var(--gold);box-shadow:0 0 18px rgba(255,193,7,.3);background:rgba(255,193,7,.1)}.pawn-indicator{width:1.15rem;height:1.15rem;flex:0 0 auto;border:2px solid rgba(255,255,255,.85);border-radius:999px;box-shadow:0 0 10px currentColor}.player-stat-name{font-weight:700;color:#fff}.player-stat-line{font-size:.8rem;color:#dbeafe}.shield-ready{color:#fde68a;font-weight:700}.shield-used{color:#94a3b8} .shield-btn{background:linear-gradient(135deg,#ffc107,#ffb703);color:#172033;font-weight:800;box-shadow:0 0 18px rgba(255,193,7,.38),0 8px 20px rgba(255,193,7,.2);transition:.16s}.shield-btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.12);box-shadow:0 0 28px rgba(255,193,7,.62),0 10px 24px rgba(255,193,7,.28)}.shield-btn:active:not(:disabled){transform:translateY(1px);filter:brightness(.96)}.shield-btn:focus-visible{outline:3px solid #fff3bc;outline-offset:3px}.shield-btn:disabled{background:#64748b;color:#e2e8f0;box-shadow:none;opacity:.8}
+    .step{border-left:3px solid rgba(129,166,236,.35);padding:.35rem .55rem;color:var(--muted)}.step.active{border-color:var(--gold);background:rgba(255,193,7,.11);color:#fff3bc}
+    .modal-bg{background:rgba(3,8,23,.8);backdrop-filter:blur(8px)}.modal{max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}.center-toast{position:fixed;top:50%;left:50%;z-index:100;max-width:min(90vw,560px);transform:translate(-50%,-50%) translateY(-10px);padding:.85rem 1.25rem;border:0;border-radius:14px;background:rgba(28,37,65,.94);color:#ffffff;box-shadow:0 18px 45px rgba(0,0,0,.42);backdrop-filter:blur(14px);text-align:center;font-weight:600;line-height:1.45;opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease}.center-toast.show{opacity:1;transform:translate(-50%,-50%) translateY(0)}.center-toast[data-type="success"]{border-color:transparent;color:#ffffff}.center-toast[data-type="info"]{border-color:transparent;color:#ffffff}.big-banner{position:fixed;inset:0;z-index:140;display:flex;align-items:center;justify-content:center;padding:1.25rem;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease,visibility .28s ease}.big-banner.show{opacity:1;visibility:visible}.big-banner-message{max-width:min(92vw,900px);padding:clamp(1.5rem,5vw,3.5rem) clamp(1.25rem,6vw,4rem);border:0;border-radius:24px;background:linear-gradient(145deg,rgba(20,29,61,.98),rgba(7,13,34,.98));box-shadow:0 24px 70px rgba(0,0,0,.65);color:#ffffff;font-size:clamp(1.875rem,6vw,3.25rem);font-weight:800;line-height:1.12;text-align:center;text-shadow:none}@media(prefers-reduced-motion:reduce){.center-toast,.big-banner{transition:none}}
+    .end-overlay{background:rgba(3,8,23,.94);backdrop-filter:blur(14px)}.end-card{max-width:760px;background:linear-gradient(145deg,#202c54,#111a35);border:1px solid rgba(255,193,7,.5);box-shadow:0 0 50px rgba(255,193,7,.15)}
+    .audio-range{accent-color:var(--gold);width:100%;cursor:pointer}.audio-modal-card{background:linear-gradient(145deg,#202c54,#111a35);border:1px solid rgba(255,193,7,.35);box-shadow:0 24px 70px rgba(0,0,0,.55)}.card-skill-overlay{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:1rem;background:rgba(0,0,0,.82);backdrop-filter:blur(12px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease,visibility .28s ease}.card-skill-overlay.show{opacity:1;visibility:visible}.card-skill-box{width:min(92vw,520px);padding:clamp(1.5rem,6vw,3rem);border:1px solid rgba(255,193,7,.8);border-radius:26px;background:linear-gradient(145deg,rgba(28,49,94,.98),rgba(8,18,47,.98));box-shadow:0 0 42px rgba(255,193,7,.32),0 24px 70px rgba(0,0,0,.6);text-align:center;animation:card-skill-overlay-in .28s ease-out both}.card-skill-icon{font-size:clamp(5.5rem,20vw,8rem);line-height:1;filter:drop-shadow(0 0 18px rgba(255,193,7,.65));animation:card-skill-icon-bounce .72s ease-in-out infinite alternate}.card-skill-name{margin-top:1rem;color:#fff;font-size:clamp(1.25rem,5vw,2rem);font-weight:800}.card-skill-status{margin-top:.5rem;color:#dbeafe;font-size:clamp(.95rem,3.5vw,1.15rem)}@keyframes card-skill-overlay-in{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}@keyframes card-skill-icon-bounce{from{transform:translateY(0) rotate(-3deg) scale(1)}to{transform:translateY(-8px) rotate(3deg) scale(1.08)}}@keyframes card-skill-overlay-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.96)}}@media(prefers-reduced-motion:reduce){.card-skill-overlay,.card-skill-box,.card-skill-icon{animation:none;transition:opacity .12s ease}.card-skill-icon{transform:none}}
+    .confetti{position:absolute;width:10px;height:18px;background:var(--gold);animation:fall 2.6s linear infinite}.confetti:nth-child(2n){background:var(--pink)}.confetti:nth-child(3n){background:var(--cyan)}@keyframes fall{from{transform:translateY(-120px) rotate(0)}to{transform:translateY(calc(100 * min(var(--vh,1vh),1vh))) rotate(620deg)}}@keyframes pulseGlow{50%{box-shadow:0 0 40px rgba(255,193,7,.55)}}.celebrate{animation:pulseGlow 1.2s ease-in-out infinite}
+    
+    .game-view{display:none}.game-view.active{display:flex;flex-direction:column;min-height:100%;height:auto;overflow:visible}
+    .play-stage{flex:none;min-height:auto;display:grid;grid-template-columns:196px minmax(0,1fr) 240px;align-items:start;gap:10px;padding:8px 12px 40px;width:100%;max-width:1540px;margin:0 auto;height:auto;overflow:visible}
+    .left-panel,.right-panel{min-height:auto;overflow:visible;display:flex;flex-direction:column;gap:10px}
+    .board-zone{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px}
+    .status-strip{display:flex;gap:8px;flex-wrap:wrap}
+    .status-strip .glass{flex:1;min-width:140px;padding:.45rem .75rem}
+    .board-wrap{position:relative;flex:none;height:auto;min-height:0;container-type:normal}
+    .board-frame{position:relative;width:min(100%,720px);height:auto;max-height:none;margin:0 auto;aspect-ratio:1}
+    .table-overlay{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+    .table-overlay>*{pointer-events:auto}
+    #trap-hud{margin:8px;align-self:center;max-width:min(92%,520px);padding:.7rem 1rem;border-radius:14px;background:rgba(12,18,42,.92);border:1px solid rgba(255,193,7,.4);box-shadow:0 10px 28px rgba(0,0,0,.35);text-align:center}
+    #trap-hud{position:relative;z-index:2}
+    #travel-stage{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 8px 8px;background:rgba(10,16,36,.94);border:1px solid rgba(255,193,7,.28);border-radius:14px;max-height:none;overflow:visible}
+    #travel-stage.sheet-collapsed{padding:4px 6px;background:rgba(10,16,36,.94);border:1px solid rgba(255,193,7,.28);max-height:none;overflow:visible}
+    #travel-stage.sheet-collapsed #travel-hint{display:none}
+    #travel-stage.sheet-collapsed .deck-pile{width:58px;height:82px;font-size:10px}
+    .sheet-chevron{min-width:76px;height:26px;padding:0 14px;border:1px solid rgba(255,193,7,.55);border-radius:999px;background:#152048;color:#fde68a;font-size:12px;font-weight:800;line-height:24px;box-shadow:0 6px 14px rgba(0,0,0,.28)}
+    #movement-decks{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+    .deck-pile{width:86px;height:122px;border-radius:12px;border:1px solid rgba(125,196,255,.45);background:radial-gradient(circle at 50% 34%,rgba(255,224,140,.28),transparent 46%),linear-gradient(180deg,#1a3c78 0%,#102246 100%);box-shadow:3px 4px 0 #0b132b,6px 8px 0 rgba(90,160,255,.18);color:#d7ecff;font-weight:800;font-size:11px;line-height:1.2;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:8px 6px 10px;transition:transform .16s ease,filter .16s ease}
+    .deck-pile:before{content:"◈";font-size:22px;color:rgba(186,230,255,.7);margin-bottom:auto;margin-top:18px}
+    .deck-pile:hover:not(:disabled){transform:translateY(-8px)}
+    .deck-pile:active:not(:disabled){transform:scale(.96)}
+    .deck-pile.frozen{filter:grayscale(.7);opacity:.5}
+    .drawn-stage{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding:4px 8px 6px}
+    .play-card{width:min(34vw,148px);height:min(48vw,210px);border:0;padding:0;background:transparent;flex:0 0 auto;display:block}
+    #creative-flip-card.play-card{width:min(42vw,210px);height:min(62vw,300px)}
+    .play-card-face{display:flex;flex-direction:column;width:100%;height:100%;border-radius:18px;padding:16px 14px;box-shadow:0 18px 40px rgba(0,0,0,.5),0 0 0 2px rgba(255,193,7,.85);transition:transform .22s cubic-bezier(.2,0,0,1),opacity .22s ease}
+    .play-card.is-flipping .play-card-face{transform:scaleX(0)}
+    .play-card.enter .play-card-face{animation:cardFloatIn .48s cubic-bezier(.2,.8,.2,1) both}
+    .play-card-back{align-items:center;justify-content:center;gap:8px;color:#d7ecff}
+    .play-card-back.travel-back{background:radial-gradient(circle at 50% 36%,rgba(255,224,140,.3),transparent 48%),linear-gradient(180deg,#1a3c78 0%,#102246 100%);color:#d7ecff}
+    .play-card-back.creative-back{background:radial-gradient(circle at 50% 38%,rgba(255,170,230,.32),transparent 50%),linear-gradient(180deg,#6a2d78 0%,#2b1446 100%);color:#f8c7ff;box-shadow:0 18px 40px rgba(0,0,0,.5),0 0 0 2px rgba(232,160,255,.8)}
+    .play-card-back .card-star{font-size:3.2rem;line-height:1;text-shadow:0 0 18px currentColor}
+    .play-card-back .card-back-label{font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+    .play-card-front{justify-content:flex-end;gap:0;padding:0;overflow:hidden;background:#F6EED8;color:#1a1a1a;text-align:left;box-shadow:4px 4px 0 #111,0 0 0 3px #111}
+    .play-card-front .card-art{display:flex;align-items:center;justify-content:center;height:58%;width:100%;overflow:hidden;background:#F6EED8;border-bottom:3px solid #1a1a1a;padding:4px 8px 0}
+    .play-card-front .card-art svg{width:100%;height:100%;display:block}
+    .play-card-front .card-text{display:flex;flex-direction:column;gap:3px;padding:8px 10px 10px;min-height:42%}
+    .play-card-front .card-kicker{font-size:10px;letter-spacing:.14em;color:#8B3A2F;font-weight:800}
+    .play-card-front .card-title{font-size:1.05rem;font-weight:800;line-height:1.15;color:#1a1a1a}
+    .play-card-front .card-body{font-size:11px;line-height:1.35;color:#3b3b3b}
+    #creative-float{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(5,10,28,.72);padding:16px}
+    #creative-float-hint{color:#fff3c4;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+    #trap-hud.hidden,#travel-stage.hidden,#creative-float.hidden,#drawn-card-area.hidden,#drawn-controls.hidden,#creative-float-info.hidden,#travel-hint.hidden,#creative-float-hint.hidden{display:none!important}
+    @keyframes cardFloatIn{from{opacity:0;transform:translateY(42px) scale(.84)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .hand-rail{display:flex;flex-direction:column;gap:8px;min-height:0}
+    .hand-cards{display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto;padding-bottom:4px}
+    .hand-card{min-height:76px;border-radius:12px;border:1px solid rgba(255,193,7,.35);background:linear-gradient(160deg,#2a3f78,#152048);padding:8px;text-align:left;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.25);display:flex;gap:8px;align-items:stretch}
+    .hand-card .hand-thumb{width:54px;flex:0 0 54px;border-radius:8px;overflow:hidden;background:#F6EED8;border:2px solid #1a1a1a}
+    .hand-card .hand-thumb svg{width:100%;height:100%;display:block}
+    .hand-card .hand-copy{min-width:0;flex:1}
+    .hand-card .card-kicker{font-size:10px;letter-spacing:.1em;color:#fde68a;font-weight:700}
+    .hand-card .card-title{font-weight:800;font-size:14px}
+    .hand-card .card-body{font-size:11px;color:#dbeafe;margin-top:4px;line-height:1.35}
+    .hand-card.is-selected{border-color:#fde68a;box-shadow:0 0 0 2px rgba(253,230,138,.55),0 8px 18px rgba(0,0,0,.3)}
+    .hand-card.face-secret,.cards-hidden .hand-card,.cards-hidden .play-card-front{background:radial-gradient(circle at 50% 38%,rgba(255,170,230,.28),transparent 50%),linear-gradient(180deg,#6a2d78 0%,#2b1446 100%);color:transparent}
+    .cards-hidden .hand-card *,.cards-hidden .play-card-front *{visibility:hidden}
+    .cards-hidden .hand-card:before,.hand-card.face-secret:before{content:"✦ การ์ดถูกซ่อน";display:block;color:#f8c7ff;font-size:12px;font-weight:700;visibility:visible}
+    .creative-stock{height:72px;border-radius:12px;border:1px solid rgba(232,160,255,.4);background:radial-gradient(circle at 50% 40%,rgba(255,170,230,.24),transparent 52%),linear-gradient(180deg,#5b2a70 0%,#2b1446 100%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#f8c7ff}
+    .target-pick{width:100%;text-align:left;border-radius:12px;border:1px solid rgba(255,193,7,.35);background:linear-gradient(160deg,#2a3f78,#152048);color:#fff;padding:10px 12px;font-weight:700}
+    .target-pick:hover{border-color:#fde68a}
+    .action-stack{display:flex;flex-direction:column;gap:8px}
+    .phone-tabs{display:none}
+    @media(max-width:1023px),(max-height:639px){
+      html,body{height:100%;max-height:100%;overflow:hidden}
+      .app-shell{height:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+      .game-view.active{height:auto;min-height:100%;overflow:visible}
+      .play-stage{display:flex;flex-direction:column;height:auto;overflow:visible;padding-bottom:28px}
+      .left-panel,.right-panel{overflow:visible;max-height:none;flex-direction:column}
+      .board-zone{order:1}
+      .right-panel{order:2}
+      .left-panel{order:3}
+      .board-wrap{flex:none;height:auto;min-height:0;container-type:normal}
+      .board-frame{width:min(100%,92vw);height:auto;max-height:none;aspect-ratio:1}
+      #travel-stage{max-height:none;width:100%}
+      #trap-hud{max-width:100%;width:100%;align-self:stretch}
+      .status-strip .glass{min-width:0}
+      .left-panel>*,.right-panel>*{min-width:0}
+    }
+    @media(max-width:700px){
+      .canva-header{padding:8px 10px}
+      .canva-header h1{font-size:1.05rem}
+      [data-template-id="header-kicker"]{display:none}
+      .deck-pile{width:64px;height:90px;font-size:10px}
+      .play-card{width:min(42vw,140px);height:min(60vw,196px)}
+      #creative-flip-card.play-card{width:min(56vw,200px);height:min(78vw,280px)}
+      .hand-card{min-height:64px}
+    }
+    @media(orientation:landscape) and (max-height:560px){
+      .play-stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,34vw);grid-auto-rows:auto;overflow:visible}
+      .board-zone{order:1;grid-column:1;grid-row:1}
+      .right-panel{order:2;grid-column:2;grid-row:1}
+      .left-panel{order:3;grid-column:1/-1;grid-row:2;flex-direction:row;overflow-x:auto}
+      .left-panel>*{min-width:200px}
+      .board-frame{width:min(100%,72svh)}
+      .canva-header{padding:4px 8px}
+      .canva-header h1,[data-template-id="header-kicker"]{display:none}
+      #trap-hud{padding:.4rem .7rem}
+      .deck-pile{width:54px;height:78px}
+    }
+    @media(prefers-reduced-motion:reduce){.play-card-face,.play-card.enter .play-card-face{transition:none;animation:none}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+  </style>
+     </head>
+ <body data-template-id="__page-root">
+  <div class="app-shell">
+   <section id="start-view" class="start-view" aria-labelledby="start-title">
+    <div class="hero-card glass border border-yellow-300/50">
+     <div class="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-yellow-400 text-3xl text-slate-950">
+      ✦
+     </div>
+     <p data-template-id="start-kicker" class="canva-text mb-3 text-sm font-semibold tracking-[.18em] text-yellow-300">Mutelu : ศึกพิกัดสายมู</p>
+     <h1 id="start-title" data-template-id="start-title-text" class="canva-text text-4xl font-extrabold leading-tight sm:text-6xl">ศึกพิกัดสายมู</h1>
+     <p data-template-id="start-description" class="canva-text mx-auto mt-5 max-w-xl text-base leading-7 text-blue-100 sm:text-lg">วางแผนเส้นทางบนกระดานพิกัด เช็กอินวัด ปักกับดัก และใช้ไพ่สายมูเพื่อคว้าชัยในศึกศรัทธา</p><button id="open-setup" data-template-id="start-button" class="canva-button gold-btn mt-8 rounded-xl px-7 py-3.5 text-lg" type="button">เริ่มเล่นเกม</button>
+     <a href="/" class="mt-4 inline-block text-sm text-cyan-100 underline decoration-yellow-300/40 underline-offset-4 hover:text-white">← กลับหน้าหลัก</a>
+    </div>
+   </section>
+   <section id="game-view" class="game-view">
+    <header data-template-id="game-header" class="canva-header border-b border-blue-300/15 px-4 py-3">
+     <div class="mx-auto flex max-w-[1540px] flex-wrap items-center justify-between gap-3">
+      <div>
+       <p data-template-id="header-kicker" class="canva-text text-xs font-semibold tracking-[.16em] text-yellow-300">JeMC (เจมซี)  / LIVE BOARD</p>
+       <h1 data-template-id="header-title" class="canva-text text-xl font-bold sm:text-2xl">Mutelu : ศึกพิกัดสายมู</h1>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+       <span id="timer-status" class="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs text-cyan-100" aria-live="polite">เวลาเล่น 00:00</span> <span id="mode-status" class="rounded-full border border-blue-300/25 bg-blue-400/10 px-3 py-1 text-xs text-blue-100"></span> <span id="round-status" class="rounded-full border border-yellow-300/30 bg-yellow-400/10 px-3 py-1 text-xs text-yellow-100"></span> <button id="rules-button" data-template-id="rules-button" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button">กติกา</button> <button id="sound-button" data-template-id="sound-button" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button" aria-pressed="true">เสียง: เปิด</button> <button id="audio-settings-button" data-template-id="audio-settings-button" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button" aria-label="เปิดการตั้งค่าเสียง"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button> <button id="emergency-button" data-template-id="emergency-button" class="canva-button rounded-lg border border-orange-300/50 bg-orange-400/10 px-3 py-2 text-sm font-semibold text-orange-100" type="button">จบเกมทันที</button> <button id="reroll-board-temples" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button">สุ่มตำแหน่งวัด</button> <button id="new-game-button" data-template-id="new-game-button" class="canva-button gold-btn rounded-lg px-3 py-2 text-sm" type="button">เริ่มเกมใหม่</button>
+      </div>
+     </div>
+    </header>
+    <div class="play-stage">
+       <aside class="left-panel">
+        <section data-template-id="players-panel" class="canva-panel glass rounded-2xl p-3">
+         <h2 data-template-id="players-heading" class="canva-text text-base font-bold">ผู้แสวงบุญ</h2>
+         <div id="players-list" class="mt-2 space-y-2"></div>
+        </section>
+        <section data-template-id="log-panel" class="canva-panel glass rounded-2xl p-3">
+         <h2 data-template-id="log-heading" class="canva-text text-base font-bold">บันทึกการเล่น</h2>
+         <div id="game-log" class="mt-2 max-h-40 space-y-2 overflow-y-auto" aria-live="polite"></div>
+        </section>
+        <section data-template-id="detail-panel" class="canva-panel glass rounded-2xl p-3">
+         <h2 data-template-id="detail-heading" class="canva-text text-base font-bold">พิกัดที่เลือก</h2>
+         <div id="board-detail" class="mt-2 rounded-lg bg-slate-950/30 p-2 text-xs leading-5 text-blue-100" aria-live="polite"></div>
+        </section>
+       </aside>
+       <section class="board-zone" aria-label="กระดานเกมพิกัด">
+        <section class="status-strip" aria-label="สถานะเกม">
+         <div data-template-id="turn-banner" class="canva-banner glass rounded-xl">
+          <p data-template-id="turn-label" class="canva-text text-[11px] font-semibold text-blue-200">เทิร์นปัจจุบัน</p>
+          <p id="turn-status" class="mt-0.5 text-sm font-bold" aria-live="polite"></p>
+         </div>
+         <div data-template-id="phase-banner" class="canva-banner glass rounded-xl">
+          <p data-template-id="phase-label" class="canva-text text-[11px] font-semibold text-blue-200">ขั้นตอนเกม</p>
+          <p id="phase-status" class="mt-0.5 text-sm font-bold text-yellow-200" aria-live="polite"></p>
+         </div>
+         <div data-template-id="progress-banner" class="canva-banner glass rounded-xl">
+          <p data-template-id="progress-label" class="canva-text text-[11px] font-semibold text-blue-200">เช็กอินรวม</p>
+          <p id="progress-status" class="mt-0.5 text-sm font-bold text-lime-200" aria-live="polite"></p>
+         </div>
+        </section>
+        <div id="trap-hud" class="hidden mx-auto w-full max-w-xl rounded-xl border border-yellow-300/40 bg-[#0c122a]/95 px-4 py-2 text-center">
+            <p class="text-xs font-semibold tracking-wide text-yellow-200">วางกับดักกรวยส้ม</p>
+            <p id="trap-message" class="mt-1 text-sm leading-5 text-blue-100"></p>
+            <p id="trap-legend" class="mt-1 text-xs text-blue-200"></p>
+            <button id="finish-traps" data-template-id="finish-traps-button" class="canva-button gold-btn mt-2 hidden rounded-lg px-3 py-2 text-sm" type="button">เสร็จสิ้นการวางกับดัก</button>
+           </div>
+        <div class="board-wrap">
+         <div class="board-frame">
+          <div id="board" role="grid" aria-label="กระดานพิกัดเกมและสถานที่ในเกม"></div>
+         </div>
+        </div>
+        <div id="travel-stage" class="hidden">
+          <button id="travel-sheet-toggle" class="sheet-chevron" type="button" aria-expanded="true" aria-label="ซ่อนแผงการ์ดเดินทาง">▼ ซ่อน</button>
+          <p id="travel-hint" class="text-xs font-semibold text-yellow-100">แตะการ์ดเดินทาง1ใบเพื่อจั่ว</p>
+          <div id="movement-decks"></div>
+          <div id="drawn-card-area" class="drawn-stage hidden">
+           <button id="drawn-flip" class="play-card" type="button" aria-label="การ์ดเดินที่จั่วได้"></button>
+           <div id="drawn-controls" class="hidden max-w-xs">
+            <p id="drawn-card-name" class="text-base font-bold"></p>
+            <p id="drawn-card-vector" class="mt-1 text-xs text-blue-100"></p>
+            <div id="direction-options" class="mt-2 flex flex-wrap gap-2"></div>
+            <button id="use-move-button" data-template-id="use-move-button" class="canva-button gold-btn mt-2 rounded-lg px-4 py-2 text-sm" type="button">ใช้การ์ดเดิน</button>
+           </div>
+          </div>
+        </div>
+       </section>
+       <aside class="right-panel">
+        <section data-template-id="creative-panel" class="canva-panel glass hand-rail rounded-2xl p-3">
+         <div class="flex items-center justify-between gap-2">
+          <h2 data-template-id="creative-heading" class="canva-text text-base font-bold">การ์ดในมือ</h2>
+          <button id="hide-cards-button" class="canva-button outline-btn rounded-lg px-3 py-1.5 text-xs" type="button" aria-pressed="false">ซ่อนการ์ด</button>
+         </div>
+         <p id="hand-note" class="text-xs text-blue-100"></p>
+         <div id="creative-stock" class="creative-stock">กองสร้างสรรค์</div>
+         <button id="draw-creative-button" class="hidden" type="button">จั่วการ์ดสร้างสรรค์</button>
+         <div id="hand-cards" class="hand-cards"></div>
+         <button id="play-trash-button" class="canva-button gold-btn hidden w-full rounded-lg px-3 py-2 text-sm" type="button">ลงขยะที่เลือก</button>
+        </section>
+        <section data-template-id="control-panel" class="canva-panel glass action-stack rounded-2xl p-3">
+         <h2 data-template-id="control-heading" class="sr-only">ควบคุมเทิร์น</h2>
+         <ol id="turn-steps" class="hidden"></ol>
+         <button id="shield-button" data-template-id="shield-button" class="canva-button shield-btn w-full rounded-lg px-3 py-2 text-sm" type="button" aria-label="ใช้พลังโทเทมป้องกันกับดักในเทิร์นนี้">ใช้พลังโทเทมป้องกัน</button>
+         <p id="shield-status" class="text-xs text-blue-200"></p>
+         <button id="end-turn-button" data-template-id="end-turn-button" class="canva-button gold-btn w-full rounded-lg px-3 py-2.5 text-sm" type="button">จบเทิร์น</button>
+        </section>
+       </aside>
+      </div>
+
+   </section>
+  </div>
+  <div id="center-toast" class="center-toast" role="status" aria-live="polite" aria-atomic="true" aria-label="การแจ้งเตือนเกม"></div>
+  <div id="creative-float" class="hidden">
+    <p id="creative-float-hint" class="text-sm font-semibold text-yellow-100">การ์ดสร้างสรรค์-แตะเพื่อพลิก</p>
+    <button id="creative-flip-card" class="play-card" type="button" aria-label="พลิกการ์ดสร้างสรรค์"></button>
+    <div id="creative-float-info" class="hidden text-center">
+     <p id="creative-float-name" class="text-lg font-bold"></p>
+     <p id="creative-float-desc" class="mt-1 max-w-sm text-sm text-blue-100"></p>
+     <div class="mt-3 flex flex-wrap justify-center gap-2">
+      <button id="keep-creative-table" class="canva-button gold-btn rounded-lg px-4 py-2 text-sm" type="button">เก็บไว้บนมือ</button>
+      <button id="use-creative-table" class="canva-button outline-btn rounded-lg px-4 py-2 text-sm" type="button">ใช้ทันที</button>
+     </div>
+    </div>
+  </div>
+  <div id="card-skill-overlay" class="card-skill-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label="ประกาศสกิลการ์ด">
+   <div class="card-skill-box">
+    <div id="card-skill-icon" class="card-skill-icon" aria-hidden="true">
+     🃏
+    </div>
+    <div id="card-skill-name" class="card-skill-name"></div>
+    <div id="card-skill-status" class="card-skill-status">
+     กำลังใช้สกิล...
+    </div>
+   </div>
+  </div>
+  <div id="big-banner" class="big-banner" role="status" aria-live="assertive" aria-atomic="true" aria-label="ประกาศสำคัญของเกม">
+   <div id="big-banner-message" class="big-banner-message"></div>
+  </div>
+  <div id="setup-modal" class="modal-bg fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+   <form id="setup-form" class="modal glass w-full max-w-2xl rounded-2xl p-6">
+    <div class="flex justify-between gap-3">
+     <div>
+      <p data-template-id="setup-kicker" class="canva-text text-xs font-semibold tracking-[.16em] text-yellow-300">NEW GAME SETUP</p>
+      <h2 id="setup-title" data-template-id="setup-title-text" class="canva-text mt-1 text-2xl font-bold">ตั้งค่าศึกพิกัดสายมู</h2>
+     </div><button id="close-setup" data-template-id="close-setup-button" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button">ปิด</button>
+    </div>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+     <fieldset class="rounded-xl border border-blue-300/20 p-3"><legend data-template-id="mode-legend" class="canva-text px-1 text-sm font-semibold text-yellow-200">โหมดการเล่น</legend><label class="mt-2 flex gap-2 text-sm"><input type="radio" name="mode" value="pass" checked><span>Pass &amp; Play — ผลัดกันเล่นบนหน้าจอเดียว</span></label><label class="mt-2 flex gap-2 text-sm"><input type="radio" name="mode" value="ai"><span>เล่นกับ AI — ผู้เล่นอื่นเดินอัตโนมัติ</span></label>
+     </fieldset>
+     <div><label data-template-id="count-label" class="canva-text mb-1 block text-sm font-semibold text-yellow-200" for="player-count">จำนวนผู้เล่น</label><select id="player-count" class="w-full rounded-lg border border-blue-300/30 bg-[#101b3b] px-3 py-2 text-white"><option value="2">2 คน</option><option value="3">3 คน</option><option value="4">4 คน</option></select><label data-template-id="size-label" class="canva-text mb-1 mt-3 block text-sm font-semibold text-yellow-200" for="board-size">ขนาดกระดาน</label><select id="board-size" class="w-full rounded-lg border border-blue-300/30 bg-[#101b3b] px-3 py-2 text-white"><option value="5" selected>11 × 11 พิกัด -5 ถึง +5</option><option value="8">17 × 17 พิกัด -8 ถึง +8</option></select>
+      <div id="difficulty-field" class="mt-3"><label data-template-id="difficulty-label" class="canva-text mb-1 block text-sm font-semibold text-yellow-200" for="ai-difficulty">ระดับความยากของ AI</label> <select id="ai-difficulty" aria-label="เลือกระดับความยากของ AI" class="w-full rounded-lg border border-blue-300/30 bg-[#101b3b] px-3 py-2 text-white"><option value="easy">ง่าย</option><option value="medium" selected>ปานกลาง</option><option value="hard">ยาก</option></select>
+      </div>
+     </div>
+    </div>
+    <div class="mt-5">
+     <p data-template-id="names-label" class="canva-text text-sm font-semibold text-yellow-200">ตั้งชื่อผู้เล่น</p>
+     <div id="name-inputs" class="mt-2 grid gap-2 sm:grid-cols-2"></div>
+    </div>
+    <div class="mt-4 rounded-xl border border-yellow-300/25 bg-yellow-400/5 p-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p class="text-sm font-semibold text-yellow-200">ตำแหน่งวัดบนกระดาน</p>
+          <p id="temple-seed-note" class="mt-1 text-xs text-blue-100">กดสุ่มเพื่อจัดวัดใหม่ ไม่ให้ซ้ำตาเดิม</p>
+        </div>
+        <button id="reroll-temples" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button">สุ่มตำแหน่งวัด</button>
+      </div>
+      <div id="temple-preview" class="mt-2 max-h-40 overflow-y-auto rounded-lg bg-slate-950/35 p-2 text-xs leading-5 text-blue-100"></div>
+    </div>
+    <button data-template-id="confirm-setup-button" class="canva-button gold-btn mt-6 w-full rounded-xl px-4 py-3" type="submit">ยืนยันและสร้างกระดาน</button>
+   </form>
+  </div>
+  <div id="creative-draw-modal" class="modal-bg fixed inset-0 z-[55] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="creative-draw-title">
+   <section class="modal glass w-full max-w-md rounded-2xl p-6">
+    <div class="flex justify-between gap-3">
+     <h2 id="creative-draw-title" class="text-2xl font-bold">การ์ดสร้างสรรค์</h2><button id="close-creative-draw" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button">ปิด</button>
+    </div>
+    <div class="mt-5 rounded-xl border border-yellow-300/30 bg-yellow-400/10 p-4">
+     <p id="creative-draw-name" class="text-xl font-bold"></p>
+     <p id="creative-draw-type" class="mt-2 text-sm text-yellow-100"></p>
+     <p id="creative-draw-desc" class="mt-3 leading-6 text-blue-100"></p>
+    </div>
+    <div class="mt-5 grid gap-2 sm:grid-cols-2"><button id="keep-creative-card" class="canva-button gold-btn rounded-lg px-4 py-2" type="button">เก็บไว้บนมือ</button><button id="use-creative-card-now" class="canva-button outline-btn rounded-lg px-4 py-2" type="button">ใช้ทันที</button>
+    </div>
+   </section>
+  </div>
+  <div id="peek-modal" class="modal-bg fixed inset-0 z-[92] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="peek-title">
+   <section class="modal glass w-full max-w-md rounded-2xl p-6">
+    <div class="flex justify-between gap-3">
+     <h2 id="peek-title" class="text-2xl font-bold">การ์ดเดินทางใบบนสุดของทุกกอง</h2><button id="close-peek" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button">ปิด</button>
+    </div>
+    <div id="peek-list" class="mt-5 space-y-2"></div>
+   </section>
+  </div>
+  <div id="attack-modal" class="modal-bg fixed inset-0 z-[91] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="attack-title">
+   <section class="modal glass w-full max-w-md rounded-2xl p-6">
+    <h2 id="attack-title" class="text-2xl font-bold">เลือกเป้าหมาย</h2>
+    <p id="attack-copy" class="mt-2 text-sm text-blue-100">เลือกผู้เล่นที่จะได้รับผลของการ์ดนี้</p>
+    <div id="attack-target-list" class="mt-4 space-y-2"></div>
+    <div class="mt-5 flex justify-end gap-2"><button id="cancel-attack" class="canva-button outline-btn rounded-lg px-4 py-2" type="button">ยกเลิก</button>
+    </div>
+   </section>
+  </div>
+  <div id="confirm-skill-modal" class="modal-bg fixed inset-0 z-[90] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-skill-title">
+   <section class="modal glass w-full max-w-md rounded-2xl p-6 text-center">
+    <h2 id="confirm-skill-title" class="text-2xl font-bold">ยืนยันการใช้การ์ด</h2>
+    <p id="confirm-skill-name" class="mt-3 text-lg font-extrabold text-yellow-100"></p>
+    <p id="confirm-skill-copy" class="mt-2 text-sm leading-6 text-blue-100">กดอีกครั้งเพื่อยืนยัน กันมือพลาด</p>
+    <div class="mt-5 flex justify-center gap-2">
+     <button id="cancel-skill" class="canva-button outline-btn rounded-lg px-4 py-2" type="button">ยกเลิก</button>
+     <button id="confirm-skill" class="canva-button gold-btn rounded-lg px-4 py-2" type="button">ยืนยันใช้การ์ด</button>
+    </div>
+   </section>
+  </div>
+  <div id="rules-modal" class="modal-bg fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+   <section class="modal glass w-full max-w-xl rounded-2xl p-6">
+    <div class="flex justify-between gap-3">
+     <h2 id="rules-title" data-template-id="rules-title-text" class="canva-text text-2xl font-bold">กติกาแบบย่อ</h2><button id="close-rules" data-template-id="close-rules-button" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button">ปิด</button>
+    </div>
+    <div class="mt-4 space-y-3 text-sm leading-7 text-blue-100">
+     <p>ทุกคนเริ่มที่พิกัด (0,0) ใช้เวกเตอร์จากการ์ดเพื่อเดินบนกระดาน</p>
+     <p>เช็กอินวัดใหม่เพื่อสะสมวัดของตนเอง และร่วมกันทำความคืบหน้าให้ครบ 9 วัด</p>
+     <p>กับดักลดระยะเดินในเทิร์นถัดไป เว้นแต่ใช้ Shield ป้องกันได้ทัน</p>
+     <p>เมื่อครบ 9 วัดรวม เกมจบทันที ผู้มีวัดสะสมมากที่สุดเป็นผู้ชนะ</p>
+    </div>
+   </section>
+  </div>
+  <div id="audio-settings-modal" class="modal-bg fixed inset-0 z-[58] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="audio-settings-title">
+   <section class="audio-modal-card w-full max-w-md rounded-2xl p-6">
+    <div class="flex items-center justify-between gap-3">
+     <h2 id="audio-settings-title" data-template-id="audio-settings-title" class="canva-text text-2xl font-bold">การตั้งค่าเสียง (Sound Settings)</h2><button id="close-audio-settings" data-template-id="close-audio-settings" class="canva-button outline-btn rounded-lg px-3 py-2 text-sm" type="button">ปิด</button>
+    </div><label class="mt-6 flex items-center justify-between gap-3 text-sm"><span data-template-id="master-audio-label" class="canva-text font-semibold">เสียงทั้งหมด</span><input id="master-audio-toggle" type="checkbox" class="h-5 w-5" checked></label> <label class="mt-5 block text-sm"><span data-template-id="bgm-audio-label" class="canva-text">เสียงประกอบ BGM</span><output id="bgm-value" class="float-right text-yellow-200">70%</output><input id="bgm-slider" class="audio-range mt-2" type="range" min="0" max="100" value="70" aria-label="ระดับเสียง BGM"></label> <label class="mt-5 block text-sm"><span data-template-id="sfx-audio-label" class="canva-text">เสียงเอฟเฟกต์ SFX</span><output id="sfx-value" class="float-right text-yellow-200">100%</output><input id="sfx-slider" class="audio-range mt-2" type="range" min="0" max="100" value="100" aria-label="ระดับเสียง SFX"></label>
+   </section>
+  </div>
+  <div id="emergency-modal" class="modal-bg fixed inset-0 z-[60] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="emergency-title">
+   <section class="glass w-full max-w-md rounded-2xl p-6 text-center">
+    <h2 id="emergency-title" data-template-id="emergency-title" class="canva-text text-xl font-bold">ยืนยันจบเกมทันที</h2>
+    <p data-template-id="emergency-copy" class="canva-text mt-3 text-sm leading-6 text-blue-100">ต้องการสรุปผลการแข่งขันจากจำนวนวัดที่เก็บได้ในตอนนี้ใช่หรือไม่</p>
+    <div class="mt-5 flex justify-center gap-2"><button id="emergency-confirm" data-template-id="emergency-confirm-button" class="canva-button gold-btn rounded-lg px-4 py-2 text-sm" type="button">ยืนยันจบเกม</button><button id="emergency-cancel" data-template-id="emergency-cancel-button" class="canva-button outline-btn rounded-lg px-4 py-2 text-sm" type="button">เล่นต่อ</button>
+    </div>
+   </section>
+  </div>
+  <div id="end-overlay" class="end-overlay fixed inset-0 z-[80] hidden items-center justify-center overflow-y-auto p-4" role="dialog" aria-modal="true" aria-labelledby="end-title" tabindex="0">
+   <div id="confetti-box" class="pointer-events-none absolute inset-0 overflow-hidden"></div>
+   <section id="end-card" class="end-card relative w-full rounded-3xl p-7 text-center sm:p-10">
+    <div id="end-step-one">
+     <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-yellow-400 text-3xl text-slate-950">
+      ✦
+     </div>
+     <p data-template-id="end-kicker" class="canva-text mt-5 text-xs font-bold tracking-[.2em] text-yellow-300">BKK9WATS / END GAME</p>
+     <h2 id="end-title" class="mt-3 text-3xl font-extrabold"></h2>
+     <p id="end-copy" class="mx-auto mt-4 max-w-lg text-blue-100"></p>
+     <p id="end-total" class="mt-5 text-xl font-bold text-lime-200"></p>
+     <p data-template-id="end-tap-one" class="canva-text mt-8 text-sm text-yellow-100">แตะที่ใดก็ได้บนหน้าจอเพื่อดูผลการแข่งขัน</p>
+    </div>
+    <div id="end-step-two" class="hidden">
+     <p id="end-time" class="text-sm text-cyan-100"></p>
+     <h2 data-template-id="leaderboard-title" class="canva-text mt-2 text-3xl font-extrabold">ตารางผู้นำแห่งศรัทธา</h2>
+     <div id="leaderboard" class="mt-6 space-y-3 text-left"></div>
+     <p data-template-id="end-tap-two" class="canva-text mt-8 text-sm text-yellow-100">แตะที่ใดก็ได้เพื่อดำเนินการต่อ</p>
+    </div>
+    <div id="end-step-three" class="hidden">
+     <h2 data-template-id="restart-title" class="canva-text text-3xl font-extrabold">พร้อมออกเดินทางอีกครั้งหรือยัง?</h2>
+     <p data-template-id="restart-copy" class="canva-text mt-3 text-blue-100">เลือกเริ่มเกมใหม่เพื่อกำหนดผู้เล่นและกระดานอีกครั้ง หรือกลับสู่หน้าหลัก</p>
+     <div class="mt-7 grid gap-3 sm:grid-cols-2"><button id="play-again" data-template-id="play-again-button" class="canva-button gold-btn rounded-xl px-5 py-3" type="button">เริ่มเกมใหม่อีกครั้ง (Play Again)</button><button id="main-menu" data-template-id="main-menu-button" class="canva-button outline-btn rounded-xl px-5 py-3" type="button">กลับหน้าหลัก (Main Menu)</button>
+     </div>
+    </div>
+   </section>
+  </div>
+    <script>
+    const $=id=>document.getElementById(id), colors=["#38bdf8","#f9a8d4","#a3e635","#fb923c"];
+    const templeBlueprint=[
+      ["วัดร่องขุ่น",-5,5],["วัดมังกรกมลาวาส (วัดมังกร)",-4,2],["วัดพระธาตุดอยสุเทพ",-3,-4],["วัดอรุณราชวราราม",-5,-2],
+      ["วัดพระศรีรัตนศาสดาราม (วัดพระแก้ว)",-2,4],["วัดพระเชตุพนวิมลมังคลาราม (วัดโพธิ์)",-1,-3],["วัดสระเกศ (วัดภูเขาทอง)",1,2],
+      ["วัดพระธาตุดอยตุง",3,5],["วัดพระปฐมเจดีย์",4,1],["วัดใหญ่ชัยมงคล",5,-4],["วัดถ้ำเสือ",3,-2],["วัดคำชะโนด",1,-5],
+      ["วัดปากน้ำ ภาษีเจริญ",-3,0],["วัดสุทัศนเทพวราราม",2,4]
+    ];
+    const moves=[
+      {type:"longFlight",icon:"✈️",name:"เครื่องบิน",vectors:[{x:6,y:0},{x:0,y:6},{x:-6,y:0},{x:0,y:-6}],desc:"บินข้ามอุปสรรคไปยังจุดหมาย"},
+      {type:"mainRoute",icon:"🚌",name:"รถเมล์",vectors:[{x:3,y:2},{x:2,y:3}],desc:"ขนส่งมวลชนสายลุย วิ่งตามเส้นทางหลัก"},
+      {type:"communityRide",icon:"🛺",name:"รถกระป้อ",vectors:[{x:2,y:1},{x:-2,y:-1}],desc:"ยานพาหนะระยะกลางสำหรับเส้นทางชุมชน"},
+      {type:"shortRide",icon:"🛺",name:"ตุ๊กตุ๊ก",vectors:[{x:2,y:2},{x:-2,y:-2}],desc:"ยานพาหนะคล่องตัวในพื้นที่แคบ"},
+      {type:"waterRoute",icon:"🚤",name:"เรือ",vectors:[{x:3,y:-4}],desc:"การสัญจรทางน้ำไปยังจุดเช็คอิน"},
+      {type:"fastRide",icon:"🏍️",name:"เด็กแว๊น",vectors:[{x:5,y:0},{x:0,y:5},{x:-5,y:0},{x:0,y:-5}],desc:"การเดินทางที่เร็วและซิ่งแซงทุกคัน"},
+      {type:"bicycle",icon:"🚲",name:"จักรยาน",vectors:[{x:-1,y:0},{x:0,y:-1},{x:1,y:0},{x:0,y:1}],desc:"เลือกทิศทางได้รอบตัว"}
+    ];
+    const normalizeVectorOption=value=>{const x=Number(value?.x??value?.dx),y=Number(value?.y??value?.dy);return Number.isFinite(x)&&Number.isFinite(y)?{x,y,dx:x,dy:y}:null};
+    const getVehicleVectors=type=>moves.find(m=>m.type===type)?.vectors||[];
+    const cardLabel=c=>(c?.icon?c.icon+" ":"")+c.name;
+    const creative=[
+      {type:"peekCreative",name:"ส่องการ์ดสร้างสรรค์",desc:"ดูการ์ดสร้างสรรค์ 3 ใบบนสุดโดยไม่เปลี่ยนลำดับ"},{type:"peekVector",name:"ส่องเวกเตอร์",desc:"ดูการ์ดเดินทาง 1 ใบบนสุดของทุกกอง พร้อมเวกเตอร์"},{type:"steal",name:"ขโมยแบบสุ่ม",desc:"สุ่มขโมยการ์ดจากมือผู้เล่นเป้าหมาย"},{type:"gift",name:"ผู้ให้ใจดี",desc:"รับการ์ด 1 ใบจากมือผู้เล่นเป้าหมาย"},{type:"skipNext",name:"ข้ามเทิร์น",desc:"เลือกผู้เล่นเพื่อข้ามเทิร์นครั้งถัดไป"},{type:"skipTarget",name:"สั่งล็อคข้าม",desc:"เลือกผู้เล่นเพื่อข้ามเทิร์นครั้งถัดไป"},
+      ...["A","B","C","D","E"].map(letter=>({type:"trash"+letter,name:"ขยะชิ้น "+letter,desc:"สะสมขยะให้ครบชุดเพื่อ Auto-Combine"})),{type:"speed2",name:"ติดสปีดสายบุญ",desc:"เพิ่มระยะเดินอีก 2 ช่องในเทิร์นนี้"},{type:"trapNow",name:"กรวยส้มฉุกเฉิน",desc:"วางกับดักที่พิกัดปัจจุบัน"},{type:"rare",name:"มหายันต์กันภัย (Rare)",desc:"ป้องกันการโจมตีหรือกับดักครั้งถัดไป",rare:true},{type:"swap",name:"สลับพิกัดมหาเวทย์",desc:"สลับพิกัดกับผู้เล่นเป้าหมาย"},{type:"wind",name:"ลมพายุพัดหลง",desc:"ผลักผู้เล่นเป้าหมายด้วยเวกเตอร์ -2,-2"},{type:"peekHand",name:"ตาทิพย์ส่องมือ",desc:"ดูการ์ดทั้งหมดบนมือเป้าหมาย"},{type:"freeze",name:"แช่แข็งการ์ด",desc:"ล็อคกองเดินทาง 1 รอบ"},{type:"magnet",name:"แม่เหล็กดูดแต้ม",desc:"ขโมยการ์ดเมื่อจบการเดินร่วมช่อง"}
+    ];
+    let cardsHidden=false,selectedTrash=new Set(),travelSheetCollapsed=false,state=null,timerInterval=null,aiBusy=false,aiPhase="idle",aiTurnToken=0,aiTimer=null,aiFallbackTimer=null,aiActionToken=0,endStep=1,lastFocus=null,toastTimer=null,soundEnabled=true,masterMuted=false,audioContext=null,bgmTimer=null,bgmPlaying=false,bgmStarted=false,audioGestureReady=false,gameAudioToken=0,hoverSfxAt=0,bgmNextNote=0,bgmNoteIndex=0,pendingTempleLayout=null,clickSfxAt=0;
+    const audioStorageKey="bkk9wats-audio-settings",savedAudioSettings=(()=>{try{return JSON.parse(localStorage.getItem(audioStorageKey)||"null")}catch(e){return null}})();
+    const defaultAudioSettings={muted:false,bgmVolume:savedAudioSettings?.bgmVolume??0.7,sfxVolume:savedAudioSettings?.sfxVolume??1};
+    function audioSettings(){return state?.audioSettings||defaultAudioSettings}
+    function persistAudioSettings(){try{localStorage.setItem(audioStorageKey,JSON.stringify({muted:audioSettings().muted,bgmVolume:clampAudio(audioSettings().bgmVolume),sfxVolume:clampAudio(audioSettings().sfxVolume)}))}catch(e){}}
+    let audioMasterGain=null,audioBgmGain=null,audioSfxGain=null,audioCompressor=null;
+    function audioGraph(ctx){if(!ctx)return null;if(audioMasterGain)return audioMasterGain;audioMasterGain=ctx.createGain();audioBgmGain=ctx.createGain();audioSfxGain=ctx.createGain();audioBgmGain.connect(audioMasterGain);audioSfxGain.connect(audioMasterGain);audioMasterGain.connect(ctx.destination);audioMasterGain.gain.value=1;audioBgmGain.gain.value=.85;audioSfxGain.gain.value=1;audioCompressor=null;return audioMasterGain}
+    function updateAudioGraph(){const ctx=audioContext;if(!ctx||!audioGraph(ctx))return;const t=ctx.currentTime,muted=masterMuted||audioSettings().muted||!soundEnabled;audioMasterGain.gain.setTargetAtTime(muted?0:1,t,.02);audioBgmGain.gain.setTargetAtTime(clampAudio(audioSettings().bgmVolume)*0.9,t,.02);audioSfxGain.gain.setTargetAtTime(clampAudio(audioSettings().sfxVolume)*1.15,t,.02);persistAudioSettings()}
+    function clampAudio(v){v=Number(v);return Number.isFinite(v)?Math.max(0,Math.min(1,v)):0}
+    function unlockBuffer(ctx){try{const src=ctx.createBufferSource();src.buffer=ctx.createBuffer(1,1,ctx.sampleRate||22050);src.connect(ctx.destination);src.start(0)}catch(e){}}
+    function ensureAudioReady(){try{const Ctor=window.AudioContext||window.webkitAudioContext;if(!Ctor)return null;if(!audioContext){try{audioContext=new Ctor({latencyHint:"interactive"})}catch(e){audioContext=new Ctor()}}audioGraph(audioContext);if(audioContext.state==="suspended"){audioContext.resume();unlockBuffer(audioContext)}updateAudioGraph();audioGestureReady=true;return audioContext}catch(e){return null}}
+    const ensureAudio=ensureAudioReady;
+    function sfxReady(){const ctx=ensureAudioReady();if(!ctx||masterMuted||audioSettings().muted||!soundEnabled)return null;return ctx}
+    function envGain(ctx,dest,start,peak,dur,attack=.012){const g=ctx.createGain();g.gain.setValueAtTime(.0001,start);g.gain.linearRampToValueAtTime(Math.max(.0002,peak),start+attack);g.gain.exponentialRampToValueAtTime(.0001,start+dur);g.connect(dest);return g}
+    function playOsc(freq,dur,vol,type="sine",delay=0){const ctx=sfxReady();if(!ctx||!audioSfxGain)return;const t=ctx.currentTime+delay,o=ctx.createOscillator(),f=ctx.createBiquadFilter();o.type=type;o.frequency.setValueAtTime(freq,t);f.type="lowpass";f.frequency.value=Math.max(900,freq*2.6);o.connect(f).connect(envGain(ctx,audioSfxGain,t,vol,dur));o.start(t);o.stop(t+dur+.06)}
+    function playNoise(dur,vol,delay,freq){const ctx=sfxReady();if(!ctx||!audioSfxGain)return;const t=ctx.currentTime+(delay||0),n=ctx.createBufferSource(),buf=ctx.createBuffer(1,Math.max(1,Math.floor(ctx.sampleRate*dur)),ctx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;n.buffer=buf;const f=ctx.createBiquadFilter();f.type="bandpass";f.frequency.value=freq||800;f.Q.value=.9;n.connect(f).connect(envGain(ctx,audioSfxGain,t,vol,dur,.02));n.start(t);n.stop(t+dur)}
+    function tone(freq,duration=.12,volume=.04,type="sine"){playOsc(freq,duration,volume*3.1,type)}
+    function playPopSound(){playOsc(1760,.11,.28,"triangle");playOsc(880,.09,.16,"sine",.012)}
+    function playHoverSfx(){const now=performance.now();if(now-hoverSfxAt<90)return;hoverSfxAt=now;playOsc(1560,.08,.09,"sine")}
+    function playClickSfx(){const now=performance.now();if(now-clickSfxAt<40)return;clickSfxAt=now;playPopSound()}
+    function playStepSfx(){playOsc(400+Math.random()*50,.09,.12,"triangle")}
+    function playCardDrawSfx(){[523,659,784].forEach((f,i)=>playOsc(f,.16,.16,"sine",i*.05))}
+    function playCardPlaySfx(){playOsc(620,.16,.18,"triangle");playOsc(930,.13,.12,"sine",.04)}
+    function playAttackSfx(){playOsc(170,.22,.2,"sawtooth");playNoise(.18,.12,0,380)}
+    function playTrapSfx(){playOsc(132,.28,.2,"sawtooth");playOsc(86,.32,.12,"sine")}
+    function playTempleSfx(){playOsc(523,.6,.18,"sine");playOsc(784,.55,.12,"triangle",.05);playOsc(1046,.4,.09,"sine",.12)}
+    function playVictorySfx(){[523,659,784,1046,1318,1568].forEach((f,i)=>playOsc(f,.32,.18,"triangle",i*.1));playOsc(261.6,1.2,.1,"sine",.04)}
+    function playOkSfx(){playOsc(660,.1,.16,"sine");playOsc(880,.13,.12,"sine",.05)}
+    function playWhoosh(){playNoise(.32,.16,0,620);playOsc(420,.24,.12,"sine");playOsc(210,.28,.1,"triangle",.05)}
+    function playIce(){[988,740,554,415].forEach((f,i)=>playOsc(f,.16,.14,"sine",i*.055));playNoise(.2,.08,0,1700)}
+    function playSparkle(){[880,1174,1568,2093].forEach((f,i)=>playOsc(f,.12,.12,"sine",i*.042))}
+    function playZip(){const ctx=sfxReady();if(!ctx||!audioSfxGain)return;const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type="sawtooth";o.frequency.setValueAtTime(220,t);o.frequency.exponentialRampToValueAtTime(1480,t+.24);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.2,t+.03);g.gain.exponentialRampToValueAtTime(.0001,t+.3);o.connect(g).connect(audioSfxGain);o.start(t);o.stop(t+.32)}
+    function playShieldSfx(){playOsc(392,.34,.16,"sine");playOsc(523,.32,.14,"triangle",.05);playOsc(784,.28,.1,"sine",.1)}
+    function playMagnetSfx(){playOsc(311,.2,.14,"sine");playOsc(466,.22,.12,"sine",.08);playOsc(311,.2,.1,"sine",.16)}
+    function playSkipSfx(){playOsc(784,.11,.16,"triangle");playOsc(494,.14,.14,"triangle",.1)}
+    function playSkillSfx(type){const t=String(type||"");if(/peek/.test(t))return playSparkle();if(/steal|gift/.test(t))return playAttackSfx();if(/skip/.test(t))return playSkipSfx();if(/speed|boost/.test(t))return playZip();if(/trap/.test(t))return playTrapSfx();if(/rare|shield/.test(t))return playShieldSfx();if(/swap|wind/.test(t))return playWhoosh();if(/freeze/.test(t))return playIce();if(/magnet/.test(t))return playMagnetSfx();if(/trash/.test(t))return playOsc(196,.13,.14,"square");return playCardPlaySfx()}
+    function playBGMPad(ctx,freqs,t,dur,vol){freqs.forEach((freq,i)=>{const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),g=ctx.createGain();o.type=i%2?"sine":"triangle";o.frequency.setValueAtTime(freq,t);f.type="lowpass";f.frequency.value=1100;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+.45);g.gain.setTargetAtTime(.0001,t+dur-.55,.32);o.connect(f).connect(g).connect(audioBgmGain);o.start(t);o.stop(t+dur+.25)})}
+    function scheduleBGM(){const ctx=audioContext;if(!ctx||!bgmPlaying||document.hidden||!audioBgmGain)return;const chords=[[130.81,164.81,196,246.94],[98,123.47,146.83,196],[110,146.83,164.81,220],[146.83,174.61,196,261.63]];while(bgmNextNote<ctx.currentTime+1.5){const chord=chords[bgmNoteIndex%chords.length];playBGMPad(ctx,chord,bgmNextNote,2.55,.12);playBGMPad(ctx,[chord[0]/2],bgmNextNote,2.7,.09);if(bgmNoteIndex%2===0){const o=ctx.createOscillator(),g=ctx.createGain(),t=bgmNextNote+.85;o.type="sine";o.frequency.setValueAtTime(chord[2]*2,t);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.07,t+.12);g.gain.exponentialRampToValueAtTime(.0001,t+1.3);o.connect(g).connect(audioBgmGain);o.start(t);o.stop(t+1.4)}bgmNoteIndex++;bgmNextNote+=1.7}}
+    function startBgmClock(ctx){if(bgmPlaying||masterMuted||audioSettings().muted||audioSettings().bgmVolume<=0)return;bgmPlaying=true;bgmStarted=true;bgmNextNote=ctx.currentTime+.05;bgmNoteIndex=0;scheduleBGM();clearInterval(bgmTimer);bgmTimer=setInterval(scheduleBGM,240)}
+    function playBGM(){try{const ctx=ensureAudioReady();if(!ctx||bgmPlaying||masterMuted||audioSettings().muted||audioSettings().bgmVolume<=0)return;if(ctx.state==="suspended"){ctx.resume().then(()=>startBgmClock(ctx)).catch(()=>{});return}startBgmClock(ctx)}catch(e){bgmPlaying=false}}
+    function stopBGM(){try{bgmPlaying=false;clearInterval(bgmTimer);bgmTimer=null}catch(e){}}
+    function setBGMVolume(val){if(state)state.audioSettings.bgmVolume=clampAudio(val);updateAudioGraph();if(audioSettings().bgmVolume>0&&!masterMuted&&!audioSettings().muted)playBGM();else if(audioSettings().bgmVolume<=0)stopBGM();updateAudioUI()}
+    function setSFXVolume(val){if(state)state.audioSettings.sfxVolume=clampAudio(val);updateAudioGraph();updateAudioUI()}
+    function setMasterMuted(val){masterMuted=Boolean(val);if(state)state.audioSettings.muted=masterMuted;updateAudioGraph();if(masterMuted)stopBGM();else if(state&&!state.over)playBGM();updateAudioUI()}
+    function updateAudioUI(){const s=audioSettings();$('bgm-slider').value=Math.round(s.bgmVolume*100);$('sfx-slider').value=Math.round(s.sfxVolume*100);$('bgm-slider').setAttribute('aria-valuenow',$('bgm-slider').value);$('sfx-slider').setAttribute('aria-valuenow',$('sfx-slider').value);$('bgm-value').textContent=Math.round(s.bgmVolume*100)+'%';$('sfx-value').textContent=Math.round(s.sfxVolume*100)+'%';$('master-audio-toggle').checked=!masterMuted&&!s.muted;$('sound-button').textContent=masterMuted||s.muted?'เสียง: ปิด':'เสียง: เปิด'}
+    let bigBannerTimer=null,bigBannerFadeTimer=null,notificationSequenceStarted=false,trapSetupPlayerIndex=0,trapSetupComplete=false,sequenceToken=0;
+
+    function showBigBanner(message){
+      const banner=$("big-banner"),label=$("big-banner-message");
+      clearTimeout(bigBannerTimer);clearTimeout(bigBannerFadeTimer);
+      label.textContent=message;banner.classList.remove("show");void banner.offsetWidth;banner.classList.add("show");
+      bigBannerTimer=setTimeout(()=>{banner.classList.remove("show");bigBannerFadeTimer=setTimeout(()=>{label.textContent=""},300)},2000);
+    }
+    function cancelBigBanner(){clearTimeout(bigBannerTimer);clearTimeout(bigBannerFadeTimer);bigBannerTimer=null;bigBannerFadeTimer=null;$("big-banner").classList.remove("show");$("big-banner-message").textContent=""}
+    function startNotificationSequence(){
+      if(!state||notificationSequenceStarted)return;notificationSequenceStarted=true;trapSetupPlayerIndex=0;trapSetupComplete=false;const token=++sequenceToken;
+      showBigBanner("เริ่มเกม!");setTimeout(()=>{if(state&&!state.over&&token===sequenceToken)showTrapBanner(token)},2050);
+    }
+    function showTrapBanner(token){if(!state||state.over||token!==sequenceToken)return;const p=state.players[trapSetupPlayerIndex];if(p)showBigBanner(p.name+" วางกับดัก")}
+    function finishNotificationSequence(){if(!state||trapSetupComplete)return;trapSetupComplete=true;const token=sequenceToken;showBigBanner("วางกรวยเสร็จสิ้น! พร้อมลุย!");setTimeout(()=>{if(state&&!state.over&&token===sequenceToken)finishTrapPlacementPhase()},2050)}
+
+    function playSfx(kind="notify"){if(!soundEnabled||masterMuted||audioSettings().muted)return;({click:playClickSfx,hover:playHoverSfx,draw:playCardDrawSfx,use:playCardPlaySfx,step:playStepSfx,debuff:playTrapSfx,success:playVictorySfx,victory:playVictorySfx,attack:playAttackSfx,trap:playTrapSfx,temple:playTempleSfx,ok:playOkSfx,whoosh:playWhoosh,ice:playIce,sparkle:playSparkle,zip:playZip,shield:playShieldSfx,magnet:playMagnetSfx,skip:playSkipSfx,notify:()=>playOsc(280,.12,.04,"sine")}[kind]||(()=>playOsc(280,.12,.04,"sine")))()}
+    function playTone(freq,duration){if(!soundEnabled||!audioContext)return;try{const o=audioContext.createOscillator(),g=audioContext.createGain();o.frequency.value=freq;o.type='triangle';g.gain.setValueAtTime(.035,audioContext.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+duration);o.connect(g).connect(audioContext.destination);o.start();o.stop(audioContext.currentTime+duration)}catch(e){/* audio is optional */}}
+    function showToast(message,type="info"){const toast=$("center-toast");clearTimeout(toastTimer);toast.textContent=message;toast.dataset.type=type;toast.classList.add("show");playSfx(type==="success"?"ok":"notify");toastTimer=setTimeout(()=>{toast.classList.remove("show");toastTimer=null},3000)}
+    function hideToast(){clearTimeout(toastTimer);toastTimer=null;$("center-toast").classList.remove("show")}
+
+    function getNextPosition(currentPos,steps,totalTiles){if(!Number.isInteger(totalTiles)||totalTiles<=0)return currentPos;const safeCurrentPos=((Number(currentPos)%totalTiles)+totalTiles)%totalTiles;const safeSteps=Math.max(0,Number(steps)||0);return (safeCurrentPos+safeSteps)%totalTiles}
+    function wrapCoordinate(currentPos,delta,max){const totalTiles=(Number(max)||0)*2+1;if(!Number.isInteger(totalTiles)||totalTiles<=0)return currentPos;const start=(Number(currentPos)||0)+(Number(max)||0);const steps=Number(delta)||0;const wrapped=steps>=0?getNextPosition(start,steps,totalTiles):getNextPosition(start,totalTiles-Math.abs(steps)%totalTiles,totalTiles);return wrapped-(Number(max)||0)}
+    function cryptoRandom(){try{if(window.crypto?.getRandomValues){const a=new Uint32Array(1);window.crypto.getRandomValues(a);return a[0]/4294967296}}catch(e){}return Math.random()}
+    function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(cryptoRandom()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+    const key=(x,y)=>x+","+y, clamp=(n,a,b)=>Math.max(a,Math.min(b,n)), rand=a=>a[Math.floor(cryptoRandom()*a.length)];
+    const templeTargetCount=14,templeMinimumPerQuadrant=3,winTarget=9;
+    const templeSeed=()=>{try{if(window.crypto?.getRandomValues){const a=new Uint32Array(2);window.crypto.getRandomValues(a);return (BigInt(a[0])<<32n|BigInt(a[1])).toString()} }catch(e){}return String(Date.now())+"-"+Math.random().toString(36).slice(2)};
+    const seededRandom=seed=>{let h=0;for(const ch of String(seed))h=(h*31+ch.charCodeAt(0))>>>0;return()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296}};
+    function getValidTemplePositions(max){
+      const out=[];for(let y=-max;y<=max;y++)for(let x=-max;x<=max;x++)if((x||y)&&Number.isFinite(x)&&Number.isFinite(y))out.push({x,y,index:(y+max)*(max*2+1)+(x+max)});return out
+    }
+    function seededShuffle(arr,random){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+    function generateDistributedTemplePositions(max,seed){
+      const random=seededRandom(seed), all=seededShuffle(getValidTemplePositions(max),random), midX=0,midY=0;
+      const quadrant=p=>p.x<midX?(p.y<midY?0:1):(p.y<midY?3:2);
+      const minDist=Math.max(2,Math.floor(max/3));
+      const chosen=[], counts=[0,0,0,0];
+      const farEnough=p=>chosen.every(c=>Math.hypot(p.x-c.x,p.y-c.y)>=minDist);
+      for(let q=0;q<4;q++){
+        const pool=all.filter(p=>quadrant(p)===q);
+        for(const p of pool){if(counts[q]>=templeMinimumPerQuadrant)break;if(farEnough(p)||counts[q]===0){chosen.push(p);counts[q]++}}
+        if(counts[q]<templeMinimumPerQuadrant){for(const p of pool){if(counts[q]>=templeMinimumPerQuadrant)break;if(!chosen.some(c=>c.x===p.x&&c.y===p.y)){chosen.push(p);counts[q]++}}}
+      }
+      const remaining=all.filter(p=>!chosen.some(c=>c.x===p.x&&c.y===p.y));
+      for(const p of remaining){if(chosen.length>=templeTargetCount)break;if(farEnough(p))chosen.push(p)}
+      for(const p of remaining){if(chosen.length>=templeTargetCount)break;if(!chosen.some(c=>c.x===p.x&&c.y===p.y))chosen.push(p)}
+      const names=seededShuffle(templeBlueprint.map(b=>b[0]),random);
+      const result=chosen.slice(0,templeTargetCount).map((p,i)=>({name:names[i],x:p.x,y:p.y,index:p.index}));
+      if(result.length<templeMinimumPerQuadrant*4||[0,1,2,3].some(q=>result.filter(p=>quadrant(p)===q).length<templeMinimumPerQuadrant)||new Set(result.map(p=>key(p.x,p.y))).size!==result.length)throw new Error("สร้างตำแหน่งวัดที่ถูกต้องไม่สำเร็จ");
+      return result
+    }
+    function shuffleTemplePositionsForNewGame(max){const seed=templeSeed();const temples=generateDistributedTemplePositions(max,seed);return {seed,temples,max}}
+    function now(){return Date.now()} function current(){return state.players[state.current]} function templeAt(x,y){return state.temples.find(t=>t.x===x&&t.y===y)} function trapAt(x,y){return state.traps.find(t=>t.x===x&&t.y===y)}
+    function elapsed(){return state&&state.startedAt?Math.floor(((state.endedAt||now())-state.startedAt)/1000):0} function timeText(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+    function updateTimer(){if(state)$("timer-status").textContent="เวลาเล่น "+timeText(elapsed())} function startTimer(){clearInterval(timerInterval);state.startedAt=now();state.endedAt=null;updateTimer();timerInterval=setInterval(updateTimer,500)} function stopTimer(){if(state&&!state.endedAt)state.endedAt=now();clearInterval(timerInterval);updateTimer()}
+    function addLog(text){state.logs.unshift({text,time:new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})})}
+    function openModal(id){lastFocus=document.activeElement;$(id).classList.remove("hidden");$(id).classList.add("flex");setTimeout(()=>$(id).querySelector("button,input,select")?.focus(),0)} function closeModal(id){$(id).classList.add("hidden");$(id).classList.remove("flex");lastFocus?.focus()}
+
+    function updateNames(){const n=+$("player-count").value,box=$("name-inputs");box.replaceChildren();for(let i=0;i<n;i++){const l=document.createElement("label");l.className="text-sm text-blue-100";l.textContent="ชื่อผู้เล่น "+(i+1);const input=document.createElement("input");input.id="player-name-"+i;input.value=i===0?"ผู้เล่น 1":"ผู้เล่น "+(i+1);input.maxLength=18;input.className="mt-1 w-full rounded-lg border border-blue-300/30 bg-[#101b3b] px-3 py-2 text-white";l.appendChild(input);box.appendChild(l)}}
+    function createMovementCards(deckIndex){
+      const pool=shuffle(moves.concat(moves));
+      return pool.slice(0,9).map((base,j)=>{
+        const vectors=shuffle(base.vectors.map(v=>({x:v.x,y:v.y,dx:v.x,dy:v.y})));
+        return Object.assign({},base,{vectors,choices:vectors,dx:vectors[0].x,dy:vectors[0].y,uid:deckIndex+"-"+j+"-"+now()+"-"+cryptoRandom()});
+      });
+    }
+    function deckSet(){return Array.from({length:5},(_,i)=>({name:"กองพิกัด "+(i+1),cards:createMovementCards(i)}))}
+    function refillMovementDeck(deck){if(!deck||!Array.isArray(deck.cards))return false;if(!deck.cards.length){const index=state?.decks?.indexOf(deck)??-1;deck.cards=createMovementCards(index<0?0:index)}return deck.cards.length>0}
+    function buildCreativeDeck(){return shuffle(creative.map((c,i)=>Object.assign({},c,{uid:"c"+i+"-"+now()+"-"+cryptoRandom()})))}
+    function drawCreative(){if(!state||state.over||state.phase!=="end"||current()?.isAI||state.pendingDrawnCreativeCard||current()?.creativeDrawnThisTurn)return null;if(!state.creativeDeck||!state.creativeDeck.length)state.creativeDeck=buildCreativeDeck();const card=state.creativeDeck.pop();if(card){current().creativeDrawnThisTurn=true;current().creativeDrawCountThisTurn=1}return card?Object.assign({},card,{uid:"r"+now()+"-"+cryptoRandom()}):null}
+    function openCreativeDraw(){if(!state||state.over||state.phase!=="end"||current().isAI||state.pendingDrawnCreativeCard)return;if(current().creativeDrawnThisTurn){showToast("เทิร์นนี้จั่วการ์ดสร้างสรรค์ไปแล้ว","info");return}const card=drawCreative();if(!card)return;state.pendingDrawnCreativeCard=card;lastFocus=$("draw-creative-button");const c=state.pendingDrawnCreativeCard;$("creative-draw-name").textContent=c.name;$("creative-draw-type").textContent="ประเภท: "+c.type;$("creative-draw-desc").textContent=c.desc;openModal("creative-draw-modal")}
+    function trashLettersInHand(p){return ["A","B","C","D","E"].filter(letter=>p.hand.some(c=>c.type==="trash"+letter))}
+    function tryTrashCombine(p,chosen){const types=["trashA","trashB","trashC","trashD","trashE"];if(!p)return false;const set=types.map(t=>(chosen||p.hand).find(c=>c.type===t));if(set.some(c=>!c))return false;p.hand=p.hand.filter(c=>!set.includes(c));set.forEach(c=>selectedTrash.delete(c.uid));const reward=state.discardPile.pop()||{type:"speed2",name:"ติดสปีดสายบุญ",desc:"เพิ่มระยะเดินอีก 2 ช่องในเทิร์นนี้",uid:"trash-reward-"+now()};p.hand.push(reward);showToast("รวมขยะครบชุด! รับ "+reward.name,"success");showBigBanner("รวมขยะสำเร็จ");addLog(p.name+" รวมขยะครบชุด รับ "+reward.name);playSkillSfx("trash");return true}
+    function toggleTrashSelect(card,p){if(!card||!p||!String(card.type).startsWith("trash"))return;if(selectedTrash.has(card.uid))selectedTrash.delete(card.uid);else{p.hand.filter(c=>c.type===card.type&&c.uid!==card.uid).forEach(c=>selectedTrash.delete(c.uid));selectedTrash.add(card.uid)}render()}
+    async function playSelectedTrash(){const p=current();if(!p||p.isAI)return;const types=["trashA","trashB","trashC","trashD","trashE"];const chosen=[...selectedTrash].map(uid=>p.hand.find(c=>c.uid===uid)).filter(Boolean);const have=trashLettersInHand(p);if(chosen.length!==5||!types.every(t=>chosen.some(c=>c.type===t))){showToast("การ์ดขยะยังไม่ครบ A–E จึงเล่นไม่ได้ (มี "+(have.length?have.join(", "):"ยังไม่มี")+")","info");return}const ok=await confirmSkillUse({name:"ขยะครบชุด A–E"});if(!ok){showToast("ยกเลิกการลงขยะ","info");return}tryTrashCombine(p,chosen);render()}
+    function keepCreative(){if(!state?.pendingDrawnCreativeCard)return;const p=current();p.hand.push(state.pendingDrawnCreativeCard);state.pendingDrawnCreativeCard=null;state.creativeFaceUp=false;showEl("creative-float",false);closeModal("creative-draw-modal");render()}
+    function useCreativeNow(){const c=state?.pendingDrawnCreativeCard;if(!c)return;const p=current();if(!p.hand.some(x=>x.uid===c.uid))p.hand.push(c);state.pendingDrawnCreativeCard=null;state.creativeFaceUp=false;showEl("creative-float",false);closeModal("creative-draw-modal");useCreative(c)}
+    function formatMoveDetail(card){if(!card)return "ว่าง";const vs=(card.choices||card.vectors||[]).map(v=>"("+(v.dx??v.x)+","+(v.dy??v.y)+")");const vec=vs.length?vs.join(" "):(Number.isFinite(card.dx)?"("+card.dx+","+card.dy+")":"");return cardLabel(card)+(vec?" · "+vec:"")}
+    function showPeek(deckIndex){const box=$("peek-list");box.replaceChildren();const list=Number.isInteger(deckIndex)?[{d:state.decks[deckIndex],i:deckIndex}]:state.decks.map((d,i)=>({d,i}));list.forEach(({d,i})=>{const top=(d.cards||[]).slice(-1)[0];const row=document.createElement("div");row.className="rounded-lg border border-blue-300/20 bg-slate-950/25 px-3 py-2 text-sm leading-6";row.textContent="กอง "+(i+1)+" · "+(top?formatMoveDetail(top):"ว่าง");box.appendChild(row)});openModal("peek-modal")}
+
+    function renderTemplePreview(){const box=$("temple-preview");if(!box||!pendingTempleLayout)return;box.replaceChildren();pendingTempleLayout.temples.forEach(t=>{const row=document.createElement("div");row.textContent=t.name+"  ·  ("+t.x+", "+t.y+")";box.appendChild(row)});const note=$("temple-seed-note");if(note)note.textContent="สุ่มแล้ว "+pendingTempleLayout.temples.length+" วัด — กดอีกครั้งถ้าอยากได้แผนที่ใหม่"}
+    function previewTemples(){const max=+$("board-size").value||5;try{pendingTempleLayout=shuffleTemplePositionsForNewGame(max);renderTemplePreview();playSfx("sparkle")}catch(e){showToast(e.message||"สุ่มวัดไม่สำเร็จ","info")}}
+    function rerollLiveTemples(){if(!state||state.over)return;if(state.phase!=="trap"){showToast("สุ่มวัดได้เฉพาะช่วงวางกับดักก่อนเริ่มเดิน","info");return}if(state.traps.length){showToast("มีกับดักบนกระดานแล้ว สุ่มวัดไม่ได้","info");return}try{const layout=shuffleTemplePositionsForNewGame(state.max);state.temples=layout.temples;state.templeSeed=layout.seed;state.templePositions=layout.temples.map(t=>({x:t.x,y:t.y,index:t.index}));pendingTempleLayout=layout;addLog("สุ่มตำแหน่งวัดใหม่แล้ว");showToast("สุ่มตำแหน่งวัดใหม่แล้ว","success");playSfx("sparkle");render()}catch(e){showToast(e.message||"สุ่มวัดไม่สำเร็จ","info")}}
+    function createGame(){cancelAI();selectedTrash=new Set();travelSheetCollapsed=false;
+      const n=+$("player-count").value,max=+$("board-size").value,mode=document.querySelector('input[name="mode"]:checked').value,difficulty=$("ai-difficulty").value;
+      let randomizedTemples;try{randomizedTemples=(pendingTempleLayout&&pendingTempleLayout.max===max)?pendingTempleLayout:shuffleTemplePositionsForNewGame(max);pendingTempleLayout=randomizedTemples}catch(e){showToast(e.message||"ไม่สามารถสร้างตำแหน่งวัดที่ถูกต้องได้","info");return}const temples=randomizedTemples.temples;
+      state={max,mode,difficulty,aiDifficulty:difficulty.toUpperCase(),templeSeed:randomizedTemples.seed,templePositions:temples.map(t=>({x:t.x,y:t.y,index:t.index})),temples,current:0,round:1,phase:"trap",players:Array.from({length:n},(_,i)=>({name:$("player-name-"+i).value.trim()||"ผู้เล่น "+(i+1),x:0,y:0,visited:[],trapQuota:n===2?2:1,trapsPlaced:0,trapsLeft:n===2?2:1,shield:true,rareShield:false,slow:false,boost:false,isAI:mode==="ai"&&i>0,hand:[],creativeDrawnThisTurn:false,creativeDrawCountThisTurn:0})),decks:deckSet(),creativeDeck:buildCreativeDeck(),discardPile:[],pendingCardChoice:null,activeModal:null,attackQueue:[],frozenTravelDecks:[],shields:{},speedBoosts:{},magnetEffects:{},skipTurnQueue:[],actionLock:false,trapActionLock:false,trapsPlacedByPlayer:Array(n).fill(0),trapsRemainingByPlayer:Array.from({length:n},()=>n===2?2:1),traps:[],selectedMove:null,selectedDirection:null,selectedCell:key(0,0),pendingDrawnCreativeCard:null,trapActionDone:false,trapPlacementToken:0,trapPlacementLock:null,vehicleActionDone:false,endTurnDone:false,movementDrawn:false,movementPlayed:false,creativeDrawn:false,creativeResolved:false,armorResolved:false,turnFinished:false,turnToken:0,logs:[],over:false,audioSettings:{...defaultAudioSettings}};
+      notificationSequenceStarted=false;trapSetupPlayerIndex=0;trapSetupComplete=false;addLog("เริ่มเกมใหม่และสุ่มตำแหน่งวัดแล้ว: "+temples.length+" แห่ง");$("start-view").style.display="none";$("game-view").classList.add("active");closeModal("setup-modal");startTimer();render();startNotificationSequence();updateAudioUI();playBGM();
+    }
+
+    function totalVisited(){return new Set(state.players.flatMap(p=>p.visited)).size}
+    function checkVictoryCondition(){if(!state||state.over)return false;if(totalVisited()>=winTarget){endGame("เช็กอินครบ "+winTarget+" วัด");return true}return false}
+    function beginTrapPlacementPhase(){if(!state)return;state.phase="trap";state.current=0;state.trapActionLock=false;trapSetupPlayerIndex=0;render();scheduleAI()}
+    function handleTrapPlacementTurn(){if(!state||state.phase!=="trap"||state.trapActionLock)return;const p=current();if(!p||p.trapsLeft<=0){advanceTrap();return}if(p.isAI){scheduleAI()}}
+    function placeTrap(x,y){const p=current();if(!state||state.trapActionLock||p.isAI||state.phase!=="trap"||p.trapsLeft<=0||(!x&&!y)||trapAt(x,y)||templeAt(x,y))return;state.trapActionLock=true;try{state.traps.push({x,y,owner:state.current});p.trapsLeft--;p.trapsPlaced++;state.trapsPlacedByPlayer[state.current]++;state.trapsRemainingByPlayer[state.current]=p.trapsLeft;addLog(p.name+" วางกับดักที่ ("+x+","+y+")");showToast(p.name+" วางกับดัก","info");advanceTrap()}finally{state.trapActionLock=false;}}
+    function advanceTrap(){if(!state||state.phase!=="trap")return;const count=state.players.length;const complete=state.players.every(p=>Number(p.trapsLeft||0)<=0);if(complete){state.trapPlacementLock=null;state.trapActionDone=false;finishTrapPlacementPhase();return}let next=-1;for(let offset=1;offset<=count;offset++){const candidate=(state.current+offset)%count;if(Number(state.players[candidate]?.trapsLeft||0)>0){next=candidate;break}}if(next<0)return;state.current=next;trapSetupPlayerIndex=next;state.trapActionDone=false;state.trapActionLock=false;state.trapPlacementToken=(Number(state.trapPlacementToken)||0)+1;state.trapPlacementLock=null;state.aiTurnInProgress=false;render();showTrapBanner(sequenceToken);if(state.players[next]?.isAI){const token=state.trapPlacementToken;setTimeout(()=>handleAiTrapPlacementTurn(token),250)}else handleTrapPlacementTurn()}
+    function finishTrapPlacementPhase(){if(!state||!state.players.every(p=>p.trapsLeft<=0))return;state.phase="draw";state.current=0;state.players.forEach(p=>{p.creativeDrawnThisTurn=false;p.creativeDrawCountThisTurn=0});addLog("วางกับดักครบทุกคน เริ่มเทิร์นผู้เล่นคนแรก");render();scheduleAI()}
+    function finishTraps(){if(state?.phase!=="trap")return;finishTrapPlacementPhase()}
+    function drawMove(i){if(!state||state.over||state.phase!=="draw"||current()?.isAI||state.actionLock||state.selectedMove||state.pendingDrawnCreativeCard||!Number.isInteger(i)||!state.decks?.[i])return;if(state.frozenTravelDecks.some(f=>f.index===i&&f.round===state.round)){showToast("กองนี้ถูกแช่แข็งในรอบนี้","info");return}playSfx("draw");const deck=state.decks[i];if(!refillMovementDeck(deck))return;const card=deck.cards.pop();if(!card)return;state.selectedMove=card;state.selectedMove.deck=i;state.selectedDirection=state.selectedMove.choices?.length===1?state.selectedMove.choices[0]:null;state.moveFaceUp=false;state.phase="use";travelSheetCollapsed=false;addLog(current().name+" จั่ว "+cardLabel(state.selectedMove));render();setTimeout(()=>{if(state&&state.selectedMove){state.moveFaceUp=true;playSfx("draw");render()}}, reducedMotion()?0:70)}
+    function getStartPosition(){
+      const candidates=[state?.startPosition,state?.centerStartPosition,state?.startTile,state?.board?.startPosition,state?.board?.centerStartPosition,state?.board?.startTile];
+      for(const value of candidates){const x=Number(value?.x??value?.[0]),y=Number(value?.y??value?.[1]);if(Number.isInteger(x)&&Number.isInteger(y)&&Math.abs(x)<=state.max&&Math.abs(y)<=state.max)return {x,y}}
+      const start=state?.board?.tiles?.find?.(tile=>tile?.isStart||tile?.type==="start")||state?.tiles?.find?.(tile=>tile?.isStart||tile?.type==="start");
+      const sx=Number(start?.x),sy=Number(start?.y);if(Number.isInteger(sx)&&Number.isInteger(sy)&&Math.abs(sx)<=state.max&&Math.abs(sy)<=state.max)return {x:sx,y:sy};
+      const center={x:0,y:0};return Math.abs(center.x)<=state.max&&Math.abs(center.y)<=state.max?center:null
+    }
+    function hasUsableArmor(player){return Boolean(player&&(player.shield===true||player.rareShield===true))}
+    function updatePlayerPositionAndBoard(player){if(!state||!player)return false;render();return true}
+    function movePlayerToStart(player){const start=getStartPosition();if(!start||!player)return false;player.x=start.x;player.y=start.y;player.position={x:start.x,y:start.y};player.tokenPosition={x:start.x,y:start.y};updatePlayerPositionAndBoard(player);return true}
+    function resolveTrapLanding(player,landedPosition){
+      if(!state||!player||!landedPosition)return false;const trap=trapAt(landedPosition.x,landedPosition.y);if(!trap)return false;
+      try{
+        if(hasUsableArmor(player)){if(player.shield)player.shield=false;else if(player.rareShield)player.rareShield=false;player.trapResolvedThisTurn=true;addLog(player.name+" มีเกราะ จึงป้องกันกับดักได้");showToast(player.name+" มีเกราะ จึงป้องกันกับดักได้","success");return true}
+        player.slow=false;player.boost=false;player.selectedDirection=null;player.trapResolvedThisTurn=true;playSfx("debuff");
+        const owner=state.players[trap.owner]?.name||"ผู้เล่นอื่น";if(!movePlayerToStart(player)){player.x=0;player.y=0;player.position={x:0,y:0};updatePlayerPositionAndBoard(player)}
+        addLog(player.name+" ตกกับดักของ "+owner+" ไม่มีเกราะ จึงกลับจุดเริ่มต้น");showToast(player.name+" ไม่มีเกราะ จึงกลับจุดเริ่มต้น","info");return true
+      }catch(e){try{if(!hasUsableArmor(player))movePlayerToStart(player)}catch(_e){}return true}
+    }
+    function resolveLanding(){
+      const p=current(),landed={x:p.x,y:p.y},t=templeAt(p.x,p.y);
+      if(t&&!p.visited.includes(key(p.x,p.y))){p.visited.push(key(p.x,p.y));addLog(p.name+" เช็กอิน "+t.name);playSfx("temple");if(checkVictoryCondition())return true}
+      if(p.magnet){const victims=state.players.filter(x=>x!==p&&x.x===p.x&&x.y===p.y&&x.hand.length);if(victims.length){victims.forEach(v=>{const stolen=v.hand.splice(Math.floor(Math.random()*v.hand.length),1)[0];if(stolen){p.hand.push(stolen);addLog(p.name+" ดูดการ์ด "+stolen.name+" จาก "+v.name);showToast("แม่เหล็กดูด "+stolen.name+" จาก "+v.name,"success")}});p.magnet=false} }
+      resolveTrapLanding(p,landed);return false
+    }
+    const reducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+    async function animateMovement(p,dx,dy){
+      const sx=Math.sign(dx||0),sy=Math.sign(dy||0),ax=Math.abs(dx||0),ay=Math.abs(dy||0);
+      if(!ax&&!ay)return;
+      const pause=reducedMotion()?0:210;
+      for(let i=0;i<ax;i++){p.x=wrapCoordinate(p.x,sx,state.max);render();playSfx("step");if(pause)await sleep(pause)}
+      for(let i=0;i<ay;i++){p.y=wrapCoordinate(p.y,sy,state.max);render();playSfx("step");if(pause)await sleep(pause)}
+    }
+    async function useMove(){
+      const p=current(),c=state.selectedMove,d=state.selectedDirection;if(!c||!d||state.over||state.actionLock)return;
+      state.actionLock=true;let dx=d.dx,dy=d.dy;if(p.slow){dx=Math.sign(dx)*Math.max(0,Math.abs(dx)-1);dy=Math.sign(dy)*Math.max(0,Math.abs(dy)-1);p.slow=false}if(p.speedBoost){const extra=Number(p.speedBoost)||2;if(Math.abs(dx)>=Math.abs(dy))dx+=(dx===0?1:Math.sign(dx))*extra;else dy+=(dy===0?1:Math.sign(dy))*extra;p.speedBoost=0;p.boost=false}else if(p.boost){dx+=Math.sign(dx||1);dy+=Math.sign(dy||1);p.boost=false}
+      const old={x:p.x,y:p.y};await animateMovement(p,dx,dy);addLog(p.name+" เดินจาก ("+old.x+","+old.y+") ไป ("+p.x+","+p.y+")");state.selectedMove=null;state.selectedDirection=null;if(!resolveLanding())state.phase="end";state.actionLock=false;render()
+    }
+    function endTurn(){
+      if(state.over||state.phase!=="end")return;if(checkVictoryCondition())return;
+      const n=state.players.length;let next=(state.current+1)%n;const skipped=[];
+      while(state.skipTurnQueue.includes(next)&&skipped.length<n){skipped.push(state.players[next].name);state.skipTurnQueue=state.skipTurnQueue.filter(i=>i!==next);next=(next+1)%n}
+      state.current=next;if(state.current===0)state.round++;
+      current().creativeDrawnThisTurn=false;current().creativeDrawCountThisTurn=0;selectedTrash=new Set();state.phase="draw";
+      if(skipped.length){addLog("ข้ามเทิร์นของ "+skipped.join(", "));showToast("ข้ามเทิร์นของ "+skipped.join(", "),"success")}
+      addLog("ต่อไปเทิร์นของ "+current().name);showToast("ต่อไปเทิร์นของ "+current().name,"info");render();scheduleAI()
+    }
+    const skillIconMap=[[/peekcreative|ส่องการ์ด|แอบดู/,'👁️'],[/peekvector|เวกเตอร์|แผนที่/,'🗺️'],[/steal|ขโมย/,'🕵️'],[/gift|ให้ใจดี|ของขวัญ/,'🎁'],[/skipnext|ข้ามเทิร์น/,'⏭️'],[/skiptarget|ล็อคข้าม|เป้าหมาย/,'🎯'],[/trash[a-e]|ขยะ/,'🗑️'],[/speed2|สปีด|เร่ง/,'🚀'],[/trapnow|กรวย|ฉุกเฉิน/,'🛑'],[/rare|มหายันต์|กันภัย/,'🛡️'],[/swap|สลับพิกัด/,'🔄'],[/wind|พายุ|หลง/,'🌪️'],[/freeze|แช่แข็ง/,'❄️'],[/magnet|แม่เหล็ก/,'🧲']];
+    let cardSkillQueue=Promise.resolve(),cardSkillTimer=null;
+    function showCardSkillOverlay(card,status){const text=String(card?.type||'')+' '+String(card?.name||'')+' '+String(card?.desc||'');const icon=skillIconMap.find(([rx])=>rx.test(text.toLowerCase()))?.[1]||'🃏';cardSkillQueue=cardSkillQueue.then(()=>new Promise(resolve=>{const o=$("card-skill-overlay");$("card-skill-icon").textContent=icon;$("card-skill-name").textContent=card?.name||"สกิลการ์ด";$("card-skill-status").textContent=status||"กำลังใช้สกิล...";o.classList.add("show");clearTimeout(cardSkillTimer);cardSkillTimer=setTimeout(()=>{o.classList.remove("show");cardSkillTimer=setTimeout(resolve,220)},1500)}));return cardSkillQueue}
+    let pendingTargetPick=null,pendingSkillConfirm=null;
+    function resolveTargetPick(player){const r=pendingTargetPick;pendingTargetPick=null;closeModal("attack-modal");if(typeof r==="function")r(player)}
+    function pickTarget(actor,reason){const others=state.players.map((pl,i)=>({pl,i})).filter(o=>o.pl!==actor);if(!others.length)return Promise.resolve(null);if(actor.isAI)return Promise.resolve(others[0].pl);const title=$("attack-title"),copy=$("attack-copy"),box=$("attack-target-list");if(title)title.textContent="เลือกเป้าหมาย";if(copy)copy.textContent=reason||"เลือกผู้เล่นที่จะได้รับผลของการ์ดนี้";box.replaceChildren();return new Promise(resolve=>{pendingTargetPick=resolve;others.forEach(({pl})=>{const b=document.createElement("button");b.type="button";b.className="target-pick";b.textContent=pl.name+" · วัด "+pl.visited.length+" · มือ "+pl.hand.length+" ใบ";b.addEventListener("click",()=>resolveTargetPick(pl));box.appendChild(b)});openModal("attack-modal")})}
+    function resolveSkillConfirm(ok){const r=pendingSkillConfirm;pendingSkillConfirm=null;closeModal("confirm-skill-modal");if(typeof r==="function")r(!!ok)}
+    function confirmSkillUse(card){$("confirm-skill-name").textContent=card?.name||"การ์ดสร้างสรรค์";$("confirm-skill-copy").textContent="กดอีกครั้งเพื่อยืนยันการใช้การ์ดใบนี้";return new Promise(resolve=>{pendingSkillConfirm=resolve;openModal("confirm-skill-modal")})}
+    function applyCreativeEffect(card,p,target){
+      if(card.type==="boost"||card.type==="speed2"){p.boost=true;p.speedBoost=2;return p.name+" ติดสปีด +2 ช่องในเทิร์นนี้"}
+      if(card.type==="rare"){p.rareShield=true;return p.name+" ได้รับมหายันต์กันภัย"}
+      if(card.type==="slow"){if(!target)return "ไม่มีเป้าหมาย";target.slow=true;return "ลดระยะเดินของ "+target.name+" ในเทิร์นถัดไป"}
+      if(card.type==="steal"){if(!target?.hand.length)return target?target.name+" ไม่มีการ์ดให้ขโมย":"ไม่มีเป้าหมาย";const stolen=target.hand.splice(Math.floor(Math.random()*target.hand.length),1)[0];p.hand.push(stolen);return "ขโมย "+stolen.name+" จาก "+target.name}
+      if(card.type==="gift"){if(!target?.hand.length)return target?target.name+" ไม่มีการ์ดบนมือ":"ไม่มีเป้าหมาย";const taken=target.hand.shift();p.hand.push(taken);return "รับ "+taken.name+" จาก "+target.name}
+      if(card.type==="skipNext"||card.type==="skipTarget"){if(!target)return "ไม่มีเป้าหมาย";state.skipTurnQueue.push(state.players.indexOf(target));return "ข้ามเทิร์นของ "+target.name}
+      if(card.type==="trapNow"){if(!(p.x||p.y))return "วางกับดักที่จุดศูนย์กลาง (0,0) ไม่ได้ — เดินออกก่อน";if(trapAt(p.x,p.y))return "พิกัดนี้มีกับดักอยู่แล้ว";if(templeAt(p.x,p.y))return "วางกับดักทับวัดไม่ได้";state.traps.push({x:p.x,y:p.y,owner:state.current});playSfx("trap");return "วางกรวยส้มที่ ("+p.x+", "+p.y+")"}
+      if(card.type==="swap"){if(!target)return "ไม่มีเป้าหมาย";const from="("+p.x+", "+p.y+")",to="("+target.x+", "+target.y+")";[p.x,p.y,target.x,target.y]=[target.x,target.y,p.x,p.y];return "สลับพิกัดกับ "+target.name+" "+from+" ↔ "+to}
+      if(card.type==="wind"){if(!target)return "ไม่มีเป้าหมาย";const ox=target.x,oy=target.y;target.x=wrapCoordinate(target.x,-2,state.max);target.y=wrapCoordinate(target.y,-2,state.max);return "พัด "+target.name+" จาก ("+ox+", "+oy+") ไป ("+target.x+", "+target.y+")"}
+      if(card.type==="magnet"){p.magnet=true;return "แม่เหล็กพร้อมแล้ว — ถ้าเดินไปช่องเดียวกับใครจะดูดการ์ด"}
+      if(card.type==="peekCreative"){const top=state.creativeDeck.slice(-3).reverse();return top.length?("3 ใบบนสุด: "+top.map(cardLabel).join(" · ")):"กองสร้างสรรค์ว่าง"}
+      if(card.type==="peekVector"){showPeek();return "เปิดดูการ์ดเดินทางใบบนสุดของทุกกอง พร้อมเวกเตอร์"}
+      if(card.type==="peekHand"){if(!target)return "ไม่มีเป้าหมาย";return target.name+": "+(target.hand.length?target.hand.map(c=>c.name).join(" · "):"ไม่มีการ์ดบนมือ")}
+      if(card.type==="freeze"){const i=Math.floor(Math.random()*state.decks.length);state.frozenTravelDecks.push({index:i,round:state.round});return "แช่แข็งกองที่ "+(i+1)+" ตลอดรอบนี้"}
+      return "ใช้ "+card.name+" แล้ว"
+    }
+    async function useCreative(card,actor=current()){
+      const p=actor;if(!state||state.over||!p||!card)return;
+      if(!p.isAI&&state.phase==="trap"){showToast("ช่วงวางกับดักยังใช้สกิลไม่ได้","info");return}
+      if(state.actionLock){showToast("กำลังใช้สกิลอยู่ รอสักครู่","info");return}
+      const inHand=p.hand.some(x=>x.uid===card.uid);
+      const pending=state.pendingDrawnCreativeCard&&state.pendingDrawnCreativeCard.uid===card.uid;
+      if(!inHand&&!pending)return;
+      if(String(card.type).startsWith("trash")){toggleTrashSelect(card,p);return}
+      showEl("creative-float",false);
+      if(!p.isAI){const ok=await confirmSkillUse(card);if(!ok){showToast("ยกเลิกการใช้การ์ด","info");render();return}}
+      const needsTarget=["steal","gift","skipNext","skipTarget","swap","wind","peekHand","slow"].includes(card.type);
+      let target=null;
+      if(needsTarget){target=await pickTarget(p, card.type.indexOf("skip")===0?"เลือกผู้เล่นที่จะถูกข้ามเทิร์น":"เลือกผู้เล่นที่จะได้รับผลของการ์ดนี้");if(!target){showToast("ยกเลิกการใช้สกิล","info");return}}
+      state.actionLock=true;
+      try{
+        if(pending)state.pendingDrawnCreativeCard=null;
+        p.hand=p.hand.filter(x=>x.uid!==card.uid);
+        state.discardPile.push(card);
+        playSkillSfx(card.type);
+        const result=applyCreativeEffect(card,p,target);
+        addLog(p.name+" ใช้ "+card.name+" — "+result);
+        showBigBanner(card.name);
+        await showCardSkillOverlay(card,result);
+        showToast(result, /ไม่ได้|ว่าง|ยกเลิก|ไม่มีการ์ด/.test(result)?"info":"success");
+      }finally{state.actionLock=false;render()}
+    }
+    function wrapDistance(a,b,totalTiles){if(!Number.isFinite(a)||!Number.isFinite(b)||!Number.isInteger(totalTiles)||totalTiles<=0)return Infinity;const d=Math.abs(a-b)%totalTiles;return Math.min(d,totalTiles-d)}
+    function getTravelDeckSafe(index=0){
+      const decks=state?.decks;if(!Array.isArray(decks)||!decks.length)return null;
+      const raw=decks[clamp(Number(index)||0,0,decks.length-1)];
+      if(Array.isArray(raw))return {owner:raw,cards:raw};
+      if(raw&&Array.isArray(raw.cards))return {owner:raw,cards:raw.cards};
+      if(raw&&Array.isArray(raw.deck))return {owner:raw,cards:raw.deck};
+      if(raw&&Array.isArray(raw.drawPile))return {owner:raw,cards:raw.drawPile};
+      return null;
+    }
+    function drawCardFromDeckSafe(deck){
+      const entry=Array.isArray(deck)?{cards:deck}:deck;
+      if(!entry||!Array.isArray(entry.cards))return null;
+      if(!entry.cards.length){const recycle=state?.travelDiscardPile||state?.movementDiscardPile||state?.travelDiscard; if(Array.isArray(recycle)&&recycle.length)entry.cards.push(...recycle.splice(0)); else if(entry.owner&&entry.owner!==entry.cards)refillMovementDeck(entry.owner)}
+      return entry.cards.length?entry.cards.pop():null;
+    }
+    function normalizeVehicleCard(card){
+      if(!card||typeof card!=="object")return null;
+      const n=String(card.name||card.type||"").toLowerCase();
+      const aliases=[["เครื่องบิน","longFlight"],["เด็กแว๊น","fastRide"],["รถเมล์","mainRoute"],["เรือ","waterRoute"],["รถกระป้อ","communityRide"],["ตุ๊กตุ๊ก","shortRide"],["รถสามล้อ","shortRide"],["จักรยาน","bicycle"]];
+      const type= moves.some(m=>m.type===card.type)?card.type:(aliases.find(([name])=>n.includes(name))?.[1]);
+      const source=Array.isArray(card.vectors)?card.vectors:Array.isArray(card.choices)?card.choices:[card.vector||card];
+      const vectors=(type?source.map(normalizeVectorOption).filter(Boolean).length?source.map(normalizeVectorOption).filter(Boolean):getVehicleVectors(type):[]);
+      if(!type||!vectors.length){showToast("ไม่รู้จักเวกเตอร์การ์ดเดิน: ใช้การ์ดนี้ไม่ได้","info");return null}
+      const choices=vectors.map(v=>({dx:v.x,dy:v.y,x:v.x,y:v.y}));
+      return {...card,type,vectors,choices,dx:choices[0].dx,dy:choices[0].dy};
+    }
+    function isAiTurnReady(){const phase=String(state?.phase||"").toLowerCase();return Boolean(state&&!state.over&&current()?.isAI&&(!state.actionLock||state.aiTurnInProgress)&&["trap","draw","playing"].includes(phase))}
+    async function safeAwaitAnimation(promise,timeout=3500){try{await Promise.race([Promise.resolve(promise),new Promise(r=>setTimeout(r,timeout))])}catch(e){}}
+    function evaluateCardAction(aiPlayer,card,difficulty="MEDIUM"){
+      if(!aiPlayer||!card||!state)return {score:-Infinity,dx:0,dy:0,riskValue:0,effectValue:0};
+      const totalTiles=Number(state.max)*2+1,targets=Array.isArray(state.temples)?state.temples.filter(t=>!aiPlayer.visited.includes(key(t.x,t.y))):[];
+      const target=targets[0]||{x:0,y:0},choices=card.choose&&Array.isArray(card.choices)?card.choices:[{dx:Number(card.dx)||0,dy:Number(card.dy)||0}];
+      return choices.map(d=>{const dx=Number(d.dx)||0,dy=Number(d.dy)||0,x=wrapCoordinate(aiPlayer.x,dx,state.max),y=wrapCoordinate(aiPlayer.y,dy,state.max),dist=Math.abs(target.x-x)+Math.abs(target.y-y),risk=trapAt(x,y)?(card.type==="longFlight"?0:100):0,effect=templeAt(x,y)?120:Math.abs(dx)+Math.abs(dy),deltaDistance=-dist;const weights=String(difficulty).toUpperCase()==="HARD"?{d:28,e:1.4,r:1.2}:{d:20,e:1,r:1};return {score:weights.d*deltaDistance+weights.e*effect-weights.r*risk,dx,dy,x,y,riskValue:risk,effectValue:effect}}).sort((a,b)=>b.score-a.score)[0];
+    }
+    function calculateBestMove(aiPlayer,candidates){return Array.isArray(candidates)&&candidates.length?candidates.slice().sort((a,b)=>(b.score||-Infinity)-(a.score||-Infinity))[0]:null}
+    async function executeCardActivitySafe(aiPlayer,card){if(!aiPlayer||!card)return false;try{await useCreative(card,aiPlayer);return true}catch(e){return false}}
+    async function aiDrawCard(){
+      if(!isAiTurnReady())return null;
+      const order=shuffle(Array.from({length:state.decks.length},(_,i)=>i));
+      for(const index of order){const entry=getTravelDeckSafe(index),card=drawCardFromDeckSafe(entry);if(card){state.aiDrawnCard=normalizeVehicleCard(card);state.selectedMove=state.aiDrawnCard;state.selectedMove.deck=index;addLog("AI Draw: "+cardLabel(state.aiDrawnCard));return state.aiDrawnCard}}
+      const fallback=normalizeVehicleCard(state.aiFallbackCard||state.fallbackVehicleCard);if(fallback){state.aiDrawnCard=fallback;state.selectedMove=fallback;addLog("AI Draw: ใช้การ์ดสำรอง");showToast("กองเดินและกองทิ้งว่าง ใช้การ์ดสำรอง","info");return fallback}
+      showToast("ไม่พบการ์ดเดินหรือการ์ดสำรอง จบเทิร์นอย่างปลอดภัย","info");return null;
+    }
+    function aiEvaluateCard(card){const p=current();if(!card||!p)return null;const result=evaluateCardAction(p,card,state.aiDifficulty||"MEDIUM")||{};const d=card.choose&&card.choices.length?result:{dx:Number(result.dx)||Number(card.dx)||0,dy:Number(result.dy)||Number(card.dy)||0};state.selectedDirection=d;addLog("AI Evaluate: vector ("+d.dx+","+d.dy+")");return d}
+    function aiTrapCandidates(p){if(!state||!p)return [];const out=[];state.players.filter(x=>x!==p).forEach(target=>[{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1}].forEach(v=>{const x=wrapCoordinate(target.x,v.dx,state.max),y=wrapCoordinate(target.y,v.dy,state.max);if((x||y)&&!trapAt(x,y)&&!templeAt(x,y))out.push({x,y,target})}));for(let x=-state.max;x<=state.max;x++)for(let y=-state.max;y<=state.max;y++)if((x||y)&&!trapAt(x,y)&&!templeAt(x,y))out.push({x,y,target:null});return out}
+    function handleAiTrapPlacementTurn(token){if(!state||state.phase!=="trap"||!current()?.isAI||token!==state.trapPlacementToken)return false;return placeAiTrap(token)}
+    function placeAiTrap(token=state?.trapPlacementToken){const p=current();if(!state||state.phase!=="trap"||!p?.isAI||token!==state.trapPlacementToken)return false;if(state.trapPlacementLock===token)return false;state.trapPlacementLock=token;let result=false;try{if(Number(p.trapsLeft||0)<=0){addLog("AI ไม่วางกับดัก: โควตาหมด");return false}const spots=aiTrapCandidates(p);if(!spots.length){addLog("AI ไม่วางกับดัก: ไม่มีพิกัดว่าง");return false}const ranked=spots.map(s=>({...s,score:s.target?(s.target.visited.length*8+Math.abs(s.x-s.target.x)+Math.abs(s.y-s.target.y)):0}));const hard=String(state.aiDifficulty||"MEDIUM").toUpperCase()!=="EASY";const spot=hard?ranked.sort((a,b)=>b.score-a.score)[0]:rand(spots);const before=state.traps.length;state.traps.push({x:spot.x,y:spot.y,owner:state.current});if(state.traps.length!==before+1)return false;p.trapsLeft--;p.trapsPlaced=(Number(p.trapsPlaced)||0)+1;state.trapsPlacedByPlayer[state.current]=p.trapsPlaced;state.trapsRemainingByPlayer[state.current]=p.trapsLeft;result=true;addLog("AI วางกับดักที่ ("+spot.x+","+spot.y+") รอบที่ "+p.trapsPlaced);playSfx("trap");return true}catch(e){addLog("AI ไม่วางกับดัก: จัดการไม่สำเร็จ");showToast("AI วางกับดักไม่สำเร็จ แต่เกมดำเนินต่อ","info");return false}finally{if(state){state.trapPlacementLock=null;state.aiTurnInProgress=false;render();if(state.phase==="trap"&&token===state.trapPlacementToken)advanceTrap()}}}
+    async function aiPlayCard(card){if(!card||!current()?.isAI)return false;state.phase="use";render();try{await safeAwaitAnimation(useMove(),4200);addLog("AI Action: ปลายทาง ("+current().x+","+current().y+")");return true}catch(e){return false}}
+    function finishAiTurn(){if(!state||state.over||state.endTurnDone)return;state.endTurnDone=true;state.aiTurnInProgress=false;state.actionLock=false;state.aiDrawnCard=null;if(state.phase!=="end")state.phase="end";render();endTurn()}
+    async function startAiTurn(){
+      if(!isAiTurnReady()||state.aiTurnInProgress)return false;state.aiTurnInProgress=true;state.actionLock=false;state.trapActionDone=false;state.vehicleActionDone=false;state.endTurnDone=false;const token=++aiTurnToken;
+      try{
+        if(state.phase==="trap"){render();placeAiTrap();return}
+        state.phase="draw";render();
+        state.actionLock=true;const card=await aiDrawCard();if(!card){state.actionLock=false;finishAiTurn();return}aiEvaluateCard(card);state.vehicleActionDone=true;state.actionLock=false;await aiPlayCard(card);
+      }
+      catch(e){state.actionLock=false;showToast("AI เดินต่อด้วยโหมดปลอดภัย","info")}
+      finally{if(state&&token===aiTurnToken&&!state.over&&state.phase!=="trap")finishAiTurn()}
+      return true;
+    }
+    async function aiTurn(aiPlayer){if(!state||current()!==aiPlayer||!aiPlayer?.isAI)return false;return startAiTurn()}
+
+    function aiOptions(){
+      const p=current(),leader=Math.max(...state.players.filter(x=>x!==p).map(x=>x.visited.length),0),targets=state.temples.filter(t=>!p.visited.includes(key(t.x,t.y))),target=targets.length?targets.sort((a,b)=>Math.abs(a.x-p.x)+Math.abs(a.y-p.y)-Math.abs(b.x-p.x)-Math.abs(b.y-p.y))[0]:{x:0,y:0},total=state.max*2+1,out=[];
+      state.decks.forEach((deck,di)=>deck.cards.forEach((card,ci)=>{
+        const dirs=card.choose?card.choices:[{dx:card.dx,dy:card.dy}];dirs.forEach(dir=>{
+          let dx=Number(dir.dx)||0,dy=Number(dir.dy)||0;if(p.slow){dx=Math.sign(dx)*Math.max(0,Math.abs(dx)-1);dy=Math.sign(dy)*Math.max(0,Math.abs(dy)-1)}if(p.boost){dx+=1;dy+=1}
+          const x=wrapCoordinate(p.x,dx,state.max),y=wrapCoordinate(p.y,dy,state.max),dist=Math.abs(target.x-x)+Math.abs(target.y-y),at=templeAt(x,y),newTemple=at&&!p.visited.includes(key(x,y)),trap=trapAt(x,y),magnitude=card.magnitude||Math.abs(dx)+Math.abs(dy),score=-dist*20+(newTemple?220:0)-(trap&&card.type!=="longFlight"?90:0)+magnitude+(p.visited.length<leader?8:0);
+          out.push({di,ci,card,dir,score,safe:!trap||card.type==='longFlight',target,x,y,total})
+        })
+      }));return out.sort((a,b)=>b.score-a.score||((b.card.magnitude||0)-(a.card.magnitude||0)))
+    }
+    const wait=ms=>new Promise(resolve=>{aiTimer=setTimeout(()=>{aiTimer=null;resolve()},ms)});
+    function cancelAI(){aiTurnToken++;aiActionToken++;aiBusy=false;aiPhase="idle";clearTimeout(aiTimer);clearTimeout(aiFallbackTimer);aiTimer=null;aiFallbackTimer=null}
+    function aiValid(token,index){return token===aiTurnToken&&state&&!state.over&&state.current===index&&current()?.isAI}
+    function aiTransition(phase){if(!state)return false;aiPhase=phase;return true}
+    function chooseAICreative(p){
+      const target=state.players.filter(x=>x!==p).sort((a,b)=>b.visited.length-a.visited.length)[0];
+      const useful=["rare","slow","wind","steal","skipTarget","skipNext","swap","speed2","trapNow","freeze","magnet","peekVector","peekCreative","peekHand"];
+      return p.hand.find(c=>useful.includes(c.type)&&((c.type==="rare"&&!p.shield&&!p.rareShield)||(["slow","wind","steal","skipTarget","skipNext"].includes(c.type)&&target)||(["swap","speed2"].includes(c.type))||["trapNow","freeze","magnet","peekVector","peekCreative","peekHand"].includes(c.type)))||null
+    }
+    async function runAI(token,index){
+      try{
+        if(!aiValid(token,index))return;const p=current();
+        if(state.phase==="trap"){aiTransition("trap");showToast("AI กำลังวางกับดัก...","info");await wait(900);if(!aiValid(token,index))return;const spots=[];for(let x=-state.max;x<=state.max;x++)for(let y=-state.max;y<=state.max;y++)if((x||y)&&!templeAt(x,y)&&!trapAt(x,y))spots.push({x,y});while(p.trapsLeft&&spots.length){const c=rand(spots);state.traps.push({x:c.x,y:c.y,owner:index});p.trapsLeft--;spots.splice(spots.findIndex(s=>s.x===c.x&&s.y===c.y),1);addLog(p.name+" วางกับดักอัตโนมัติ")}if(state.players.every(x=>!x.trapsLeft)){finishNotificationSequence();}else advanceTrap();return}
+        if(state.phase==="draw"){aiTransition("draw");showToast("AI กำลังจั่วการ์ดเดินทาง...","info");await wait(900);if(!aiValid(token,index))return;state.decks.forEach(refillMovementDeck);const opts=aiOptions(),safe=opts.filter(o=>o.safe),best=(safe.length?safe:opts)[0];if(best){const deck=state.decks[best.di];state.selectedMove=deck.cards.splice(best.ci,1)[0];state.selectedDirection=best.dir;state.phase="use";addLog(p.name+" เลือก "+cardLabel(state.selectedMove)+" vector ("+best.dir.dx+","+best.dir.dy+") เป้าหมาย ("+best.target.x+","+best.target.y+") ปลายทาง ("+best.x+","+best.y+")");render();await wait(650);if(aiValid(token,index)){await useMove();await wait(650)}}else{state.phase="draw";render();cancelAI();scheduleAI();return}}
+        if(!aiValid(token,index))return;aiTransition("creative");const card=chooseAICreative(p);if(card){showToast("AI กำลังเลือกใช้การ์ดสร้างสรรค์...","info");await wait(900);if(aiValid(token,index)){await useCreative(card,p);await wait(450)}}
+        if(!aiValid(token,index))return;aiTransition("ending");showToast("AI จบเทิร์น","info");await wait(900);if(aiValid(token,index)){const before=state.current;endTurn();if(state&&state.current!==before){aiBusy=false;aiPhase="idle"}else cancelAI()}
+      }catch(e){if(aiValid(token,index)){state.phase="end";render();const before=state.current;endTurn();if(state?.current===before)cancelAI()}}
+    }
+    function scheduleAI(){if(!state||state.over||!current()?.isAI||aiBusy||state.aiTurnInProgress)return;aiBusy=true;startAiTurn().finally(()=>{aiBusy=false})}
+
+    function endGame(reason){
+      if(!state||state.over)return;cancelAI();hideToast();cancelBigBanner();playSfx("victory");stopBGM();sequenceToken++;state.over=true;state.endReason=reason;stopTimer();endStep=1;renderEnd();$("end-overlay").classList.remove("hidden");$("end-overlay").classList.add("flex");$("end-overlay").focus()
+    }
+    function renderEnd(){
+      const reached=state.endReason==="เช็กอินครบ "+winTarget+" วัด";$("end-title").textContent=reached?"เช็กอินครบ 9 วัดแล้ว!":"สรุปผลการจบเกมทันที";$("end-copy").textContent=reached?"พลังศรัทธารวมกันพาทุกคนพิชิตเป้าหมายของกระดานได้สำเร็จ ผู้เช็คอินได้มากที่สุดเป็นผู้ชนะ":"เกมสิ้นสุดก่อนครบเป้าหมาย ผลการแข่งขันนับจากวัดที่เช็กอินได้ในขณะนี้";$("end-total").textContent="วัดรวมที่เช็กอิน: "+totalVisited()+" / "+winTarget;
+      $("end-step-one").classList.toggle("hidden",endStep!==1);$("end-step-two").classList.toggle("hidden",endStep!==2);$("end-step-three").classList.toggle("hidden",endStep!==3);$("end-card").classList.toggle("celebrate",endStep===1);
+      const box=$("confetti-box");box.replaceChildren();if(endStep===1)for(let i=0;i<24;i++){const c=document.createElement("span");c.className="confetti";c.style.left=(i*13%100)+"%";c.style.animationDelay=(i%7)*.18+"s";box.appendChild(c)}
+      if(endStep===2){$("end-time").textContent="เวลาเล่นทั้งหมด "+timeText(elapsed());const board=$("leaderboard");board.replaceChildren();const sorted=[...state.players].sort((a,b)=>{const dv=b.visited.length-a.visited.length;return dv||state.players.indexOf(a)-state.players.indexOf(b)});sorted.forEach((p,i)=>{const row=document.createElement("article");row.className="rounded-xl border p-4 "+(i===0?"border-yellow-300 bg-yellow-400/10":"border-blue-300/20 bg-slate-950/25");row.style.boxShadow="0 0 20px "+colors[state.players.indexOf(p)]+"55";row.textContent="อันดับ "+(i+1)+" · "+p.name+" — "+p.visited.length+" วัด";board.appendChild(row)})}
+    }
+    function nextEndStep(){if(endStep<3){endStep++;renderEnd()}}
+    function resetToMenu(){clearInterval(timerInterval);cancelAI();hideToast();cancelBigBanner();sequenceToken++;notificationSequenceStarted=false;trapSetupComplete=false;state=null;window.location.href="/"}
+
+
+    function showEl(id,on){const el=$(id);if(!el)return;el.classList.toggle("hidden",!on)}
+    function escHtml(s){const d=document.createElement("div");d.textContent=String(s||"");return d.innerHTML}
+    function paintCardBack(face,kind){const travel=kind==="travel";face.className="play-card-face play-card-back "+(travel?"travel-back":"creative-back");face.innerHTML='<span class="card-star">'+(travel?"◈":"✦")+'</span><span class="card-back-label">'+(travel?"เดินทาง":"สร้างสรรค์")+'</span>'}
+    function cardArtSVG(card){
+      const t=String(card&&card.type||"");
+      const key=t.indexOf("trash")===0?"trash":t;
+      const ink="#1a1a1a",sw='stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"',F=(c)=>'fill="'+c+'" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"';
+      const map={
+        peekCreative:'<rect x="28" y="50" width="38" height="52" rx="6" '+F("#F0C93A")+' transform="rotate(-14 47 76)"/><rect x="61" y="44" width="38" height="56" rx="6" '+F("#fff")+'/><rect x="94" y="50" width="38" height="52" rx="6" '+F("#E07A9A")+' transform="rotate(14 113 76)"/><ellipse cx="80" cy="34" rx="26" ry="16" '+F("#fff")+'/><circle cx="80" cy="34" r="7" fill="'+ink+'"/><circle cx="83" cy="31" r="2.2" fill="#fff"/>',
+        peekVector:'<circle cx="80" cy="62" r="34" '+F("#F6EED8")+'/><circle cx="80" cy="62" r="6" fill="'+ink+'"/><path d="M80 32 L86 62 L80 92 L74 62 Z" '+F("#E24B3B")+'/><path d="M80 32 L74 62 L80 48 Z" '+F("#3D7EA6")+'/><text x="80" y="24" text-anchor="middle" font-size="12" font-weight="800" fill="'+ink+'">N</text>',
+        steal:'<rect x="78" y="50" width="46" height="58" rx="6" '+F("#fff")+'/><path d="M40 86 c18-28 52-28 70 0" '+sw+'/><circle cx="58" cy="58" r="16" '+F("#F4C56A")+'/><circle cx="52" cy="56" r="2.4" fill="'+ink+'"/><circle cx="64" cy="56" r="2.4" fill="'+ink+'"/><path d="M50 64 q8 6 16 0" '+sw+'/><path d="M46 46 l-8-10 M70 46 l8-10" '+sw+'/>',
+        gift:'<rect x="48" y="52" width="64" height="48" rx="6" '+F("#E24B3B")+'/><rect x="48" y="40" width="64" height="16" rx="4" '+F("#F0C93A")+'/><rect x="76" y="40" width="8" height="60" fill="#5B8F4A" stroke="'+ink+'" stroke-width="2"/><path d="M80 40 c-14-18-28-4-16 8 M80 40 c14-18 28-4 16 8" '+sw+'/>',
+        skipNext:'<ellipse cx="80" cy="78" rx="40" ry="18" '+F("#E07A9A")+'/><circle cx="70" cy="54" r="16" '+F("#F4C56A")+'/><circle cx="64" cy="52" r="2.2" fill="'+ink+'"/><circle cx="74" cy="52" r="2.2" fill="'+ink+'"/><path d="M64 60 q6 4 12 0" '+sw+'/><text x="108" y="46" font-size="22" font-weight="900" fill="'+ink+'">z</text><text x="118" y="34" font-size="16" font-weight="900" fill="'+ink+'">z</text>',
+        skipTarget:'<ellipse cx="80" cy="78" rx="40" ry="18" '+F("#E07A9A")+'/><circle cx="70" cy="54" r="16" '+F("#F4C56A")+'/><circle cx="64" cy="52" r="2.2" fill="'+ink+'"/><circle cx="74" cy="52" r="2.2" fill="'+ink+'"/><path d="M64 60 q6 4 12 0" '+sw+'/><text x="108" y="46" font-size="22" font-weight="900" fill="'+ink+'">z</text><text x="118" y="34" font-size="16" font-weight="900" fill="'+ink+'">z</text>',
+        trash:'<path d="M42 70 q18 24 38 8 q14-10 36 6" '+F("#F0C93A")+'/><path d="M50 68 q20-22 40-4" '+sw+'/><circle cx="70" cy="62" r="3" fill="'+ink+'"/><path d="M108 46 l18 8 l-6 16 h-18 z" '+F("#5B8F4A")+'/>',
+        speed2:'<path d="M30 70 h40 M30 82 h28" '+sw+'/><path d="M58 46 l62 20 l-18 8 l-10 18 z" '+F("#E24B3B")+'/><circle cx="96" cy="70" r="5" fill="#F0C93A" stroke="'+ink+'" stroke-width="2"/>',
+        boost:'<path d="M30 70 h40 M30 82 h28" '+sw+'/><path d="M58 46 l62 20 l-18 8 l-10 18 z" '+F("#E24B3B")+'/><circle cx="96" cy="70" r="5" fill="#F0C93A" stroke="'+ink+'" stroke-width="2"/>',
+        trapNow:'<path d="M80 28 l32 72 h-64 z" '+F("#E8892F")+'/><rect x="74" y="70" width="12" height="22" fill="#fff" stroke="'+ink+'" stroke-width="2"/><circle cx="72" cy="58" r="3" fill="'+ink+'"/><circle cx="88" cy="58" r="3" fill="'+ink+'"/><path d="M74 68 q6 5 12 0" '+sw+'/>',
+        rare:'<path d="M80 24 l14 28 h30 l-24 18 10 30 -30-16 -30 16 10-30 -24-18 h30 z" '+F("#F0C93A")+'/><circle cx="80" cy="64" r="8" '+F("#fff")+'/>',
+        swap:'<circle cx="54" cy="60" r="18" '+F("#3D7EA6")+'/><circle cx="106" cy="60" r="18" '+F("#E07A9A")+'/><path d="M70 44 q20-22 40 0 M90 76 q-20 22-40 0" '+sw+'/><polygon points="112,40 124,44 112,52" fill="'+ink+'"/><polygon points="48,80 36,76 48,68" fill="'+ink+'"/>',
+        wind:'<path d="M40 50 h50 c16 0 16 22 0 22 h-18 M40 72 h36 c12 0 12 18 0 18 H52" '+sw+'/><circle cx="118" cy="40" r="10" '+F("#9ED0EA")+'/><path d="M110 86 q18-8 10-24" '+sw+'/>',
+        peekHand:'<path d="M46 92 l8-40 10 8 8-28 10 26 8-16 10 22 12 28 z" '+F("#F4C56A")+'/><ellipse cx="80" cy="40" rx="20" ry="12" '+F("#fff")+'/><circle cx="80" cy="40" r="6" fill="'+ink+'"/>',
+        peekCreative:'<rect x="28" y="50" width="38" height="52" rx="6" '+F("#F0C93A")+' transform="rotate(-14 47 76)"/><rect x="61" y="44" width="38" height="56" rx="6" '+F("#fff")+'/><rect x="94" y="50" width="38" height="52" rx="6" '+F("#E07A9A")+' transform="rotate(14 113 76)"/><ellipse cx="80" cy="34" rx="26" ry="16" '+F("#fff")+'/><circle cx="80" cy="34" r="7" fill="'+ink+'"/><circle cx="83" cy="31" r="2.2" fill="#fff"/>',
+        freeze:'<rect x="52" y="38" width="56" height="56" rx="10" '+F("#B9E4F2")+' transform="rotate(8 80 66)"/><circle cx="70" cy="58" r="3" fill="'+ink+'"/><circle cx="90" cy="58" r="3" fill="'+ink+'"/><path d="M72 72 q8 8 16 0" '+sw+'/><path d="M40 40 l12 8 M120 36 l-10 10 M44 96 l10-6" '+sw+'/>',
+        magnet:'<path d="M48 40 h20 v28 c0 18 24 18 24 0 V40 h20 v30 c0 34-64 34-64 0 z" '+F("#E24B3B")+'/><rect x="48" y="40" width="20" height="14" '+F("#3D7EA6")+'/><rect x="92" y="40" width="20" height="14" '+F("#3D7EA6")+'/><circle cx="118" cy="78" r="8" '+F("#F0C93A")+'/>',
+        longFlight:'<path d="M28 70 l90-8 14 10 -70 8 z" '+F("#fff")+'/><path d="M70 62 l-10-22 h12 l18 22" '+F("#3D7EA6")+'/><path d="M86 78 l8 18 h12 l-6-18" '+F("#E24B3B")+'/>',
+        mainRoute:'<rect x="30" y="48" width="100" height="40" rx="8" '+F("#E24B3B")+'/><rect x="42" y="56" width="22" height="16" rx="3" fill="#9ED0EA" stroke="'+ink+'" stroke-width="2"/><rect x="72" y="56" width="22" height="16" rx="3" fill="#9ED0EA" stroke="'+ink+'" stroke-width="2"/><circle cx="50" cy="92" r="8" '+F("#1a1a1a")+'/><circle cx="110" cy="92" r="8" '+F("#1a1a1a")+'/>',
+        communityRide:'<rect x="36" y="50" width="88" height="34" rx="6" '+F("#5B8F4A")+'/><rect x="92" y="40" width="32" height="22" rx="4" '+F("#F0C93A")+'/><circle cx="56" cy="90" r="8" '+F("#1a1a1a")+'/><circle cx="108" cy="90" r="8" '+F("#1a1a1a")+'/>',
+        shortRide:'<path d="M44 78 h28 v-22 h18 l16 22 h12" '+sw+'/><circle cx="58" cy="90" r="9" '+F("#1a1a1a")+'/><circle cx="108" cy="90" r="9" '+F("#1a1a1a")+'/><rect x="70" y="48" width="28" height="18" rx="4" '+F("#F0C93A")+'/>',
+        waterRoute:'<path d="M36 70 q22-28 44 0 q10 12 40-4 v18 q-36 16-84 0 z" '+F("#3D7EA6")+'/><rect x="86" y="40" width="6" height="28" fill="'+ink+'"/><path d="M92 40 h22 l-8 12 h-14 z" '+F("#E24B3B")+'/>',
+        fastRide:'<path d="M40 80 h50 l18-16 h16" '+sw+'/><circle cx="58" cy="92" r="9" '+F("#1a1a1a")+'/><circle cx="112" cy="92" r="9" '+F("#1a1a1a")+'/><circle cx="86" cy="50" r="10" '+F("#F4C56A")+'/><path d="M78 48 h-12" '+sw+'/>',
+        bicycle:'<circle cx="52" cy="86" r="14" '+sw+'/><circle cx="112" cy="86" r="14" '+sw+'/><path d="M52 86 l24-28 h28 l8 28 M76 58 l-14 28" '+sw+'/>'
+      };
+      return '<svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+(map[key]||'<circle cx="80" cy="60" r="26" '+F("#F0C93A")+'/><path d="M68 60 h24 M80 48 v24" '+sw+'/>')+'</svg>';
+    }
+    function paintCardFront(face,card){face.className="play-card-face play-card-front";const kind=card&&card.choices?"การ์ดเดินทาง":String(card&&card.type||"").indexOf("trash")===0?"ขยะสะสม":"การ์ดสร้างสรรค์";face.innerHTML='<span class="card-art">'+cardArtSVG(card)+'</span><span class="card-text"><span class="card-kicker">'+escHtml(kind)+'</span><span class="card-title">'+escHtml(cardLabel(card))+'</span><span class="card-body">'+escHtml(card&&card.desc||"")+'</span></span>'}
+    function fillFlip(el,card,flipped){
+      if(!el)return;
+      const uid=card&&card.uid?String(card.uid):"";
+      const wantFront=!!(flipped&&card&&!(cardsHidden&&el.closest("#hand-cards")));
+      const kind=card&&card.choices?"travel":"creative";
+      let face=el.querySelector(".play-card-face");
+      if(el.getAttribute("data-uid")!==uid||!face){
+        el.setAttribute("data-uid",uid);
+        el.classList.add("play-card","enter");
+        el.innerHTML='<span class="play-card-face"></span>';
+        face=el.querySelector(".play-card-face");
+        paintCardBack(face,kind);
+        el.setAttribute("data-front","0");
+        el.setAttribute("data-kind",kind);
+      }
+      const isFront=el.getAttribute("data-front")==="1";
+      if(wantFront===isFront){if(wantFront)paintCardFront(face,card);return}
+      const settle=()=>{el.setAttribute("data-front",wantFront?"1":"0");if(wantFront)paintCardFront(face,card);else paintCardBack(face,kind);el.classList.remove("is-flipping")};
+      if(reducedMotion()){settle();return}
+      el.classList.add("is-flipping");
+      setTimeout(settle,180)
+    }
+    function revealCreativeCard(){if(!state?.pendingDrawnCreativeCard||state.creativeFaceUp)return;state.creativeFaceUp=true;playSfx("draw");render()}
+    function offerCreativeFloat(){if(!state||state.over||state.phase!=="end")return;const p=current();if(!p||p.isAI||p.creativeDrawnThisTurn||state.pendingDrawnCreativeCard)return;const card=drawCreative();if(!card)return;state.pendingDrawnCreativeCard=card;state.creativeFaceUp=false}
+
+    function render(){
+      if(!state)return;updateTimer();const p=current();
+      $("game-view").classList.toggle("cards-hidden",cardsHidden);
+      const hideBtn=$("hide-cards-button");if(hideBtn){hideBtn.textContent=cardsHidden?"เปิดการ์ด":"ซ่อนการ์ด";hideBtn.setAttribute("aria-pressed",String(cardsHidden))}
+      $("mode-status").textContent=state.mode==="ai"?"โหมด เล่นกับ AI · "+(state.aiDifficulty||"MEDIUM"):"โหมด Pass & Play";$("round-status").textContent="รอบ "+state.round+" · เป้าหมาย "+winTarget+" วัด";$("turn-status").textContent=p.name+" · ("+p.x+", "+p.y+")"+(p.isAI?" · AI กำลังคิด":"");$("phase-status").textContent={trap:"ตั้งค่ากับดัก",draw:"จั่วการ์ดเดิน",use:"ใช้เวกเตอร์",end:"การ์ดสร้างสรรค์ / จบเทิร์น"}[state.phase];$("progress-status").textContent="เช็กอินรวม "+totalVisited()+" / "+winTarget+" วัด";const rerollLive=$("reroll-board-temples");if(rerollLive){const canReroll=state.phase==="trap"&&!state.traps.length;rerollLive.disabled=!canReroll;rerollLive.classList.toggle("opacity-40",!canReroll);rerollLive.title=canReroll?"สุ่มตำแหน่งวัดใหม่บนกระดานนี้":"สุ่มได้เฉพาะช่วงวางกับดักก่อนมีกรวย"}
+      const board=$("board");board.style.gridTemplateColumns="repeat("+(state.max*2+1)+",minmax(0,1fr))";board.replaceChildren();for(let y=state.max;y>=-state.max;y--)for(let x=-state.max;x<=state.max;x++){const c=document.createElement("button"),t=templeAt(x,y),trap=trapAt(x,y),here=state.players.map((p,i)=>({p,i})).filter(o=>o.p.x===x&&o.p.y===y);c.type="button";c.className="cell"+(x===0||y===0?" axis":"")+(x===0&&y===0?" origin":"");c.setAttribute("role","gridcell");c.setAttribute("aria-label","พิกัด "+x+", "+y+(t?" สถานที่ในเกม "+t.name:""));c.addEventListener("click",()=>{state.selectedCell=key(x,y);placeTrap(x,y);render()});if(t){const e=document.createElement("span");e.className="temple";e.textContent=t.name;c.title="สถานที่ในเกม: "+t.name;c.appendChild(e)}if(x===0&&y===0){const e=document.createElement("span");e.className="origin-mark";c.appendChild(e)}if(trap){const e=document.createElement("span");e.className="trap";e.style.borderBottomColor=colors[trap.owner];c.appendChild(e)}if(here.length){const w=document.createElement("span");w.className="piece-wrap";here.forEach(o=>{const e=document.createElement("span");e.className="piece";e.style.background=e.style.color=colors[o.i];e.title=o.p.name;w.appendChild(e)});c.appendChild(w)}const co=document.createElement("span");co.className="coord";co.textContent=x+","+y;c.appendChild(co);board.appendChild(c)}
+      const list=$("players-list");list.replaceChildren();state.players.forEach((pl,i)=>{const r=document.createElement("article");r.className="player-stat-card "+(i===state.current?"current-player":"");const pawn=document.createElement("span");pawn.className="pawn-indicator";pawn.style.background=colors[i];pawn.style.color=colors[i];pawn.setAttribute("aria-label","หมากผู้เล่น "+(i+1));const info=document.createElement("div");info.className="min-w-0";const name=document.createElement("div");name.className="player-stat-name";name.textContent=pl.name+(pl.isAI?" · AI":"");const score=document.createElement("div");score.className="player-stat-line";score.textContent="วัดสะสม: "+pl.visited.length;const shield=document.createElement("div");const available=pl.shield||pl.rareShield;shield.className="player-stat-line "+(available?"shield-ready":"shield-used");shield.textContent="Shield: "+(available?(pl.rareShield?"Rare พร้อม":"พร้อม"):"ใช้ไปแล้ว");info.append(name,score,shield);r.append(pawn,info);list.appendChild(r)});
+      const trapping=state.phase==="trap";
+      showEl("trap-hud",trapping);
+      $("trap-message").textContent=trapping?p.name+(p.isAI?" · AI กำลังวางกับดัก":" แตะช่องว่างบนกระดาน")+" · เหลือ "+p.trapsLeft+" จุด":"";
+      $("trap-legend").textContent="กับดักบนกระดาน "+state.traps.length+" จุด";
+      $("finish-traps").disabled=!trapping;showEl("finish-traps",false);
+      offerCreativeFloat();
+      const drawing=state.phase==="draw";
+      const using=state.phase==="use";
+      showEl("travel-stage",drawing||using);
+      const stage=$("travel-stage");if(stage){stage.classList.toggle("sheet-collapsed",!!travelSheetCollapsed);const tog=$("travel-sheet-toggle");if(tog){const label=state.selectedMove?state.selectedMove.name:"การ์ดเดินทาง";tog.textContent=travelSheetCollapsed?"▲ "+label:"▼ ซ่อน";tog.setAttribute("aria-expanded",String(!travelSheetCollapsed));tog.setAttribute("aria-label",travelSheetCollapsed?"เปิดแผงการ์ดเดินทาง":"ซ่อนแผงการ์ดเดินทาง")}}
+      const hint=$("travel-hint");if(hint){hint.textContent=drawing?"แตะการ์ดเดินทาง1ใบเพื่อจั่ว":"พลิกการ์ดแล้วเลือกเวกเตอร์";hint.classList.toggle("hidden",using&&!!state.selectedMove)}
+      const decks=$("movement-decks");decks.replaceChildren();if(drawing){state.decks.forEach((d,i)=>{const frozen=state.frozenTravelDecks.some(f=>f.index===i&&f.round===state.round);const b=document.createElement("button");b.className="deck-pile"+(frozen?" frozen":"");b.type="button";b.setAttribute("aria-label",d.name+" การ์ดเดินทางคว่ำหน้า");b.disabled=p.isAI||frozen;b.innerHTML="<span>"+d.name+"</span>";b.addEventListener("click",()=>drawMove(i));decks.appendChild(b)})}
+      const area=$("drawn-card-area");const hasMove=!!state.selectedMove&&using;showEl("drawn-card-area",hasMove);if(hasMove){fillFlip($("drawn-flip"),state.selectedMove,!!state.moveFaceUp);const revealed=!!state.moveFaceUp;showEl("drawn-controls",revealed);$("drawn-card-name").textContent=state.selectedMove.name;$("drawn-card-vector").textContent=state.selectedMove.choices?.length>1?"เลือกเวกเตอร์: "+state.selectedMove.choices.map(d=>"("+d.dx+","+d.dy+")").join(", "):"เวกเตอร์ ("+(state.selectedDirection?state.selectedDirection.dx+", "+state.selectedDirection.dy:"?")+")";const opts=$("direction-options");opts.replaceChildren();if(revealed&&state.selectedMove.choices?.length>1)state.selectedMove.choices.forEach(d=>{const b=document.createElement("button");b.type="button";b.className="rounded-lg border border-yellow-300/40 px-3 py-1 text-sm";b.textContent="("+d.dx+","+d.dy+")";b.addEventListener("click",()=>{state.selectedDirection=d;render()});opts.appendChild(b)});$("use-move-button").disabled=!state.selectedDirection||p.isAI||!revealed}
+      $("hand-note").textContent="มือของ "+p.name;const stock=$("creative-stock");if(stock)stock.textContent="กองสร้างสรรค์";const drawCreativeButton=$("draw-creative-button");if(drawCreativeButton){drawCreativeButton.disabled=p.isAI||state.phase!=="end"||!!state.pendingDrawnCreativeCard||p.creativeDrawnThisTurn}
+      const hand=$("hand-cards");hand.replaceChildren();p.hand.forEach(card=>{const b=document.createElement("button");b.type="button";const trash=String(card.type).startsWith("trash");b.className="hand-card"+(cardsHidden?" face-secret":"")+(selectedTrash.has(card.uid)?" is-selected":"");b.disabled=p.isAI||state.phase==="trap";b.innerHTML='<span class="hand-thumb">'+cardArtSVG(card)+'</span><span class="hand-copy"><span class="card-kicker">'+(trash?"ขยะสะสม":"สกิล")+'</span><span class="card-title">'+cardLabel(card)+'</span><span class="card-body">'+card.desc+(trash?" · แตะเพื่อเลือก":" · แตะเพื่อใช้")+'</span></span>';b.addEventListener("click",()=>{if(cardsHidden){showToast("เปิดการ์ดก่อน จึงจะใช้ได้","info");return}if(trash)toggleTrashSelect(card,p);else useCreative(card)});hand.appendChild(b)});
+      const trashBtn=$("play-trash-button");if(trashBtn){const hasTrash=p.hand.some(c=>String(c.type).startsWith("trash"));showEl("play-trash-button",hasTrash&&!p.isAI&&state.phase!=="trap");trashBtn.textContent=selectedTrash.size?"ลงขยะที่เลือก ("+selectedTrash.size+")":"ลงขยะที่เลือก";trashBtn.disabled=!hasTrash}
+      const pending=state.pendingDrawnCreativeCard&&state.phase==="end"&&!p.isAI;showEl("creative-float",!!pending);if(pending){fillFlip($("creative-flip-card"),state.pendingDrawnCreativeCard,!!state.creativeFaceUp);const shown=!!state.creativeFaceUp;showEl("creative-float-hint",!shown);showEl("creative-float-info",shown);$("creative-float-name").textContent=state.pendingDrawnCreativeCard.name;$("creative-float-desc").textContent=state.pendingDrawnCreativeCard.desc||""}else{const cf=$("creative-flip-card");if(cf){cf.removeAttribute("data-uid");cf.removeAttribute("data-front");cf.classList.remove("enter","is-flipping");cf.replaceChildren()}}
+      const steps=$("turn-steps");if(steps){steps.replaceChildren()}
+      $("shield-button").disabled=p.isAI||(!p.shield&&!p.rareShield);$("shield-status").textContent=p.shield?"Shield พร้อมใช้":p.rareShield?"Rare Shield พร้อมใช้":"ไม่มี Shield";$("end-turn-button").disabled=state.phase!=="end"||p.isAI||!!state.pendingDrawnCreativeCard;
+      const [x,y]=state.selectedCell.split(",").map(Number),t=templeAt(x,y),tr=trapAt(x,y);$("board-detail").textContent="พิกัด ("+x+", "+y+")"+(t?" · สถานที่ในเกม: "+t.name:"")+(tr?" · กับดักของ "+state.players[tr.owner].name:"");
+      const log=$("game-log");log.replaceChildren();state.logs.slice(0,12).forEach(l=>{const r=document.createElement("div");r.className="rounded-lg border-l-2 border-yellow-300/60 bg-slate-950/25 px-2 py-1 text-xs text-blue-100";r.textContent=l.time+" · "+l.text;log.appendChild(r)})
+    }
+
+    function toggleDifficulty(){const ai=document.querySelector('input[name="mode"]:checked')?.value==="ai",field=$("difficulty-field");field.classList.toggle("hidden",!ai);$("ai-difficulty").disabled=!ai}
+    $("open-setup").addEventListener("click",()=>{updateNames();toggleDifficulty();previewTemples();openModal("setup-modal")});$("close-setup").addEventListener("click",()=>closeModal("setup-modal"));$("reroll-temples").addEventListener("click",previewTemples);$("reroll-board-temples").addEventListener("click",rerollLiveTemples);$("board-size").addEventListener("change",previewTemples);$("player-count").addEventListener("change",updateNames);document.querySelectorAll('input[name="mode"]').forEach(input=>input.addEventListener("change",toggleDifficulty));$("setup-form").addEventListener("submit",e=>{e.preventDefault();createGame()});$("rules-button").addEventListener("click",()=>openModal("rules-modal"));$("sound-button").addEventListener("click",()=>{soundEnabled=!soundEnabled;$("sound-button").textContent=soundEnabled?"เสียง: เปิด":"เสียง: ปิด";$("sound-button").setAttribute("aria-pressed",String(soundEnabled));if(soundEnabled)playSfx("notify")});$("sound-button").textContent="เสียง: เปิด";$("close-rules").addEventListener("click",()=>closeModal("rules-modal"));$("new-game-button").addEventListener("click",()=>{updateNames();previewTemples();openModal("setup-modal")});$("draw-creative-button").addEventListener("click",openCreativeDraw);$("keep-creative-card").addEventListener("click",keepCreative);$("use-creative-card-now").addEventListener("click",useCreativeNow);$("keep-creative-table")?.addEventListener("click",keepCreative);$("use-creative-table")?.addEventListener("click",useCreativeNow);$("creative-flip-card")?.addEventListener("click",revealCreativeCard);$("drawn-flip")?.addEventListener("click",()=>{if(state?.selectedMove){state.moveFaceUp=true;render()}});$("hide-cards-button")?.addEventListener("click",()=>{cardsHidden=!cardsHidden;playSfx("click");render()});$("travel-sheet-toggle")?.addEventListener("click",()=>{travelSheetCollapsed=!travelSheetCollapsed;playSfx("click");render()});$("close-creative-draw").addEventListener("click",()=>closeModal("creative-draw-modal"));$("close-peek").addEventListener("click",()=>closeModal("peek-modal"));$("cancel-attack").addEventListener("click",()=>resolveTargetPick(null));$("cancel-skill")?.addEventListener("click",()=>resolveSkillConfirm(false));$("confirm-skill")?.addEventListener("click",()=>resolveSkillConfirm(true));$("play-trash-button")?.addEventListener("click",playSelectedTrash);$("finish-traps").addEventListener("click",finishTraps);$("use-move-button").addEventListener("click",useMove);$("end-turn-button").addEventListener("click",endTurn);$("shield-button").addEventListener("click",()=>{const p=current();if(p.shield)p.shield=false;else p.rareShield=false;addLog(p.name+" เปิดใช้ Shield ล่วงหน้า");showToast(p.name+" เปิดใช้งานโทเทมป้องกัน!","success");render()});
+    $("emergency-button").addEventListener("click",()=>openModal("emergency-modal"));$("emergency-cancel").addEventListener("click",()=>closeModal("emergency-modal"));$("emergency-confirm").addEventListener("click",()=>{closeModal("emergency-modal");endGame("จบเกมทันที")});
+    $("end-overlay").addEventListener("click",e=>{if(e.target.closest("button"))return;nextEndStep()});$("end-overlay").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&endStep<3){e.preventDefault();nextEndStep()}});$("play-again").addEventListener("click",e=>{e.stopPropagation();$("end-overlay").classList.add("hidden");$("end-overlay").classList.remove("flex");updateNames();openModal("setup-modal")});$("main-menu").addEventListener("click",e=>{e.stopPropagation();resetToMenu()});
+    $("audio-settings-button").addEventListener("click",()=>{playPopSound();openModal("audio-settings-modal")});$("close-audio-settings").addEventListener("click",()=>closeModal("audio-settings-modal"));$("audio-settings-modal").addEventListener("click",e=>{if(e.target.id==="audio-settings-modal")closeModal("audio-settings-modal")});$("master-audio-toggle").addEventListener("change",e=>{if(state)state.audioSettings.muted=!e.target.checked;soundEnabled=e.target.checked;if(!soundEnabled)stopBGM();else playBGM();updateAudioUI()});$("bgm-slider").addEventListener("input",e=>setBGMVolume(Number(e.target.value)/100));$("sfx-slider").addEventListener("input",e=>setSFXVolume(Number(e.target.value)/100));function unlockAudioFromGesture(){const ctx=ensureAudioReady();if(!ctx)return;if(ctx.state==="suspended"){ctx.resume().then(()=>{playBGM();playPopSound()}).catch(()=>{})}else playBGM()}
+    ["pointerdown","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,unlockAudioFromGesture,{capture:true}));
+    document.addEventListener("visibilitychange",()=>{if(document.hidden)return;if(audioContext?.state==="suspended")audioContext.resume();if(!masterMuted&&audioSettings().bgmVolume>0)playBGM()});
+    document.addEventListener("click",e=>{unlockAudioFromGesture();if(e.target.closest("button, .gold-btn, .outline-btn, a[href]"))playSfx("click")});
+    document.addEventListener("pointerover",e=>{if(e.target.closest("button, .gold-btn, .outline-btn"))playSfx("hover")});
+    (function applySetupQuery(){
+      const q=new URLSearchParams(location.search);
+      const mode=q.get("mode");
+      if(mode==="ai"||mode==="pass"){const input=document.querySelector('input[name="mode"][value="'+mode+'"]');if(input){input.checked=true}}
+      const board=q.get("board");
+      if(board==="5"||board==="8"){const sel=$("board-size");if(sel)sel.value=board}
+      const difficulty=q.get("difficulty");
+      if(difficulty==="easy"||difficulty==="medium"||difficulty==="hard"){const sel=$("ai-difficulty");if(sel)sel.value=difficulty}
+      toggleDifficulty();
+      updateNames();
+      const startNow=q.get("start")==="1";
+      if(startNow){$("start-view").style.display="none";$("game-view").classList.add("active");createGame();return}
+      if(q.get("setup")==="1"){$("setup-modal").classList.add("setup-page");previewTemples();openModal("setup-modal")}
+    })();
+    (function syncAppHeight(){const apply=()=>{const h=(window.visualViewport&&visualViewport.height)||window.innerHeight;document.documentElement.style.setProperty("--app-h",h+"px")};apply();window.addEventListener("resize",apply);window.visualViewport&&visualViewport.addEventListener("resize",apply);window.visualViewport&&visualViewport.addEventListener("scroll",apply)})();
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"){if($("attack-modal")&&!$("attack-modal").classList.contains("hidden"))resolveTargetPick(null);if($("confirm-skill-modal")&&!$("confirm-skill-modal").classList.contains("hidden"))resolveSkillConfirm(false);["audio-settings-modal","rules-modal","setup-modal","emergency-modal","creative-draw-modal","peek-modal","attack-modal","confirm-skill-modal"].forEach(id=>{const modal=$(id);if(modal&&!modal.classList.contains("hidden"))closeModal(id)})}});if(window.lucide?.createIcons)window.lucide.createIcons();
+  </script>
+ </body>
+</html>
